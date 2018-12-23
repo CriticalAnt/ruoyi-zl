@@ -16,4 +16,6 @@ public interface ISysTempletService {
     int deleteTempletByIds(String ids);
 
     int insertTempletData(SysTemplet data);
+
+    int updateTemplet(SysTemplet templet);
 }

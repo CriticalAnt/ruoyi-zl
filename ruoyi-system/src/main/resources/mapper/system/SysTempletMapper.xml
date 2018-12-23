@@ -30,4 +30,14 @@
         </foreach>
     </delete>
 
+    <update id="updateTemplet" parameterType="SysTemplet">
+        update zl_data_model
+        <set>
+            <if test="modelName != null and modelName != ''">model_name = #{modelName},</if>
+            update_time = sysdate(),
+            update_by = #{updateBy}
+        </set>
+        where id = #{id}
+    </update>
+
 </mapper>

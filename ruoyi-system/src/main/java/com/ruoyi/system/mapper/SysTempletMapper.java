@@ -16,4 +16,6 @@ public interface SysTempletMapper {
     int deleteTempletByIds(Long[] ids);
 
     int insertTemplet(SysTemplet data);
+
+    int updateTemplet(SysTemplet templet);
 }

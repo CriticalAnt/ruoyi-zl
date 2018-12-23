@@ -5,6 +5,7 @@ import com.ruoyi.common.base.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.framework.web.page.TableDataInfo;
+import com.ruoyi.system.domain.SysRole;
 import com.ruoyi.system.domain.SysTemplet;
 import com.ruoyi.system.service.ISysTempletService;
 import com.ruoyi.web.core.base.BaseController;
@@ -80,5 +81,16 @@ public class SysTempletController extends BaseController {
 //        mmap.put("role", roleService.selectRoleById(roleId));
         mmap.put("id", roleId);
         return prefix + "/edit";
+    }
+
+    @RequiresPermissions("system:templet:edit")
+    @Log(title = "数据管理", businessType = BusinessType.UPDATE)
+    @PostMapping("/edit")
+    @Transactional(rollbackFor = Exception.class)
+    @ResponseBody
+    public AjaxResult editSave(SysTemplet templet) {
+        templet.setUpdateBy(ShiroUtils.getLoginName());
+        ShiroUtils.clearCachedAuthorizationInfo();
+        return toAjax(dataService.updateTemplet(templet));
     }
 }

@@ -34,4 +34,9 @@ public class SysTempletServiceImpl implements ISysTempletService {
     public int insertTempletData(SysTemplet data) {
         return sysTempletMapper.insertTemplet(data);
     }
+
+    @Override
+    public int updateTemplet(SysTemplet templet) {
+        return sysTempletMapper.updateTemplet(templet);
+    }
 }
