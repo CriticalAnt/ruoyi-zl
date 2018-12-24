@@ -72,12 +72,14 @@
     var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/templet";
+    var addPoint = ctx + "system/datapoint";
 
 
     $(function () {
         var options = {
             url: prefix + "/list",
             createUrl: prefix + "/add",
+            addPointUrl: addPoint + "/add",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
@@ -92,7 +94,7 @@
                 {
                     field: 'id',
                     title: '模板ID',
-                    sortable: true
+                    sortable: true,
                 },
                 {
                     field: 'modelName',

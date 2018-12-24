@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css"-->
+<!--rel="stylesheet"/>-->
+
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-role-add">
+        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+            <a class="btn btn-success" id="addRowbtn" shiro:hasPermission="system:templet:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary btn-edit disabled" onclick="javascript:update()"
+               shiro:hasPermission="system:templet:edit">
+                <!--onclick="$.operate.edit()"-->
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="system:templet:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:data:export">
+                <i class="fa fa-download"></i> 导出
+            </a>-->
+        </div>
+        <table id="reportTable"></table>
+        <!--<div class="col-sm-12 select-table table-striped">-->
+        <!--<table id="reportTable" data-mobile-responsive="true"></table>-->
+        <!--</div>-->
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+<!--<script th:src="@{/ajax/libs/bootstrap-table/extensions/editable/bootstrap-table-editable.min.js}"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>-->
+<script th:inline="javascript">
+    var addFlag = [[${@permission.hasPermi('system:templet:add')}]];
+    var editFlag = [[${@permission.hasPermi('system:templet:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
+    var datas = [[${@dict.getType('sys_normal_disable')}]];
+    var prefix = ctx + "system/datapoint";
+
+    $(function () {
+        var $table = $('#reportTable');
+        var $button = $('#addRowbtn');
+        var $getTableData = $('#getTableData');
+
+        $button.click(function () {
+            $table.bootstrapTable('insertRow', {
+                index: 0,
+                row: {
+                    id: '',
+                    name: 'name',
+                    price: 'price'
+                }
+            });
+        });
+
+        $table.bootstrapTable({
+            url: 'data2.json',
+            toolbar: '#toolbar',
+            clickEdit: true,
+            showToggle: true,
+//            pagination: true,       //显示分页条
+//            showColumns: true,
+//            showPaginationSwitch: true,     //显示切换分页按钮
+            showRefresh: true,      //显示刷新按钮
+            //clickToSelect: true,  //点击row选中radio或CheckBox
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'id',
+                title: 'Item ID',
+                edit: {
+                    type: 'select',//下拉框
+                    //数据来源地址
+                    //url:'user/getUser.htm',
+                    data: [{id: 1, text: 'lzx'}, {id: 2, text: 'lsl'}],
+                    valueField: 'id',
+                    textField: 'text',
+                    onSelect: function (val, rec) {
+                        console.log(val, rec);
+                    }
+                }
+            }, {
+                field: 'name',
+                title: 'Item Name',
+                edit: {
+                    type: 'select',//下拉框
+                    //数据来源地址
+                    //url:'user/getUser.htm',
+                    data: [{id: 1, text: 'lzx'}, {id: 2, text: 'lsl'}],
+                    valueField: 'id',
+                    textField: 'text',
+                    onSelect: function (val, rec) {
+                        console.log(val, rec);
+                    }
+                }
+            }, {
+                field: 'price',
+                title: 'Item Price',
+                edit: {
+                    type: 'select',//下拉框
+                    //数据来源地址
+                    //url:'user/getUser.htm',
+                    data: [{id: 1, text: 'lzx'}, {id: 2, text: 'lsl'}],
+                    valueField: 'id',
+                    textField: 'text',
+                    onSelect: function (val, rec) {
+                        console.log(val, rec);
+                    }
+                }
+            },
+                {
+                    field: "toRun", title: "Run Flag", align: "center", edit: {
+                    type: 'select',//下拉框
+//                    url: './index.php?r=dictionary/dictionaryInfo&type=' + "run",
+                    data:[{id:1,text:'hello'},{id:2,text:'hi'}],
+                    valueField: 'id',
+                    textField: 'text',
+                    editable: false,
+                    onSelect: function (val, rec) {
+                        //console.log(val,rec);
+                    }
+                }, sortable: true
+                }
+            ],
+            /**
+             * @param {点击列的 field 名称} field
+             * @param {点击列的 value 值} value
+             * @param {点击列的整行数据} row
+             * @param {td 元素} $element
+             */
+            onClickCell: function (field, value, row, $element) {
+                $element.attr('contenteditable', true);
+                $element.blur(function () {
+                    var index = $element.parent().data('index');
+                    var tdValue = $element.html();
+
+                    saveData(index, field, tdValue);
+                })
+            }
+        });
+
+        $getTableData.click(function () {
+            alert(JSON.stringify($table.bootstrapTable('getData')));
+        });
+
+        function saveData(index, field, value) {
+            $table.bootstrapTable('updateCell', {
+                index: index,       //行索引
+                field: field,       //列名
+                value: value        //cell值
+            })
+        }
+
+    });
+
+    /*$(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+//            sortName: "",
+            sortName: "id",
+            modalName: "数据模板",
+            search: false,
+            showExport: false,
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '模板ID',
+                    sortable: true
+                },
+                {
+                    field: 'modelName',
+                    title: '模板名称',
+                    sortable: true
+                },
+                {
+                    field: 'wtf',
+                    title: '关联数据点',
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + addFlag + '" href="#" onclick="$.operate.addFullTitle(\'' + '数据点' + '\')"><i class="fa fa-edit"></i>添加数据点</a> ');
+                        actions.push('<a class="btn btn-primary btn-xs ' + editFlag + '" href="#" onclick="data(\'' + row.id + '\')"><i class="fa fa-check-square-o"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });*/
+
+    /*$(function () {
+        //编辑表格
+        $('#reportTable').bootstrapTable({
+            //数据来源的网址
+            url: '/index.xhtml',
+            method: 'post',
+            editable: true,//开启编辑模式
+            clickToSelect: true,
+            showPaginationSwitch: true, //显示分页切换按钮
+            search: true,  //显示检索框
+            showRefresh: true,  //显示刷新按钮
+            showToggle: true, //显示切换按钮来切换列表/卡片视图
+            pagination: true,
+            pageList: [10, 25],
+            pageSize: 10,
+            pageNumber: 1,
+            columns: [
+                {checkbox: true},
+                {field: "id", edit: false, title: "编号", align: "center"},
+                /!*{
+                    field: "user_company", edit: {
+                    type: 'select',//下拉框
+                    //数据来源地址
+                    //url:'user/getUser.htm',
+                    data: [{id: 1, text: 'lzx'}, {id: 2, text: 'lsl'}],
+                    valueField: 'id',
+                    textField: 'text',
+                    onSelect: function (val, rec) {
+                        console.log(val, rec);
+                    }
+                }, title: "下拉框", align: "center", width: "200px"
+                },*!/
+                /!*{
+                    field: "time", edit: {
+                    type: 'date',//日期
+                    required: true,
+                    click: function () {
+                    }
+                }, title: "时间", align: "center"
+                },*!/
+                {field: "name", title: "名字", align: "center", edit: true},
+                {field: "age", title: "年龄", align: "center"},
+                {
+                    field: "gender",
+                    title: "性别",
+                    align: "center",
+                    width: "200px",
+                    formatter: function (value, row, rowIndex) {
+                        if (value == 1) {
+                            return '男';
+                        } else if (value == 2) {
+                            return '女';
+                        }
+                    },
+                    edit: {
+                        type: 'select',//下拉框
+                        //数据来源地址
+                        data: [{id: 1, text: '男'}, {id: 2, text: '女'}],
+                        valueField: 'id',
+                        textField: 'text',
+                        onSelect: function (val, rec) {
+                            console.log(val, rec);
+                        }
+                    }
+                }
+                // {field:"userstatus_end_time",title:"操作",align:"center",formatter:function(value,row,rowIndex){
+                //  var strHtml ='<a href="javascript:void(0);" onclick="removeRow('+row+')">删除</a>';
+                //  return strHtml;
+                // },edit:false}
+            ]
+        });
+        $('#addRowbtn').click(function () {
+            var data = {};
+            $('#reportTable').bootstrapTable('append', data);
+        });
+
+        $('sava').onClickCell(function () {
+
+        });
+
+
+    });*/
+
+    /*function removeRow(row) {
+        console.log(row);
+    }*/
+
+    /*function update() {
+        var row = $('#reportTable').bootstrapTable('getSelections')
+        console.log(row)
+        location.href = "delete.action?uid=" + row.uid
+        var row = $('#dg').datagrid('reload');
+    }*/
+
+    /*function sava() {
+        var row = $('#reportTable').bootstrapTable('getSelections');
+        if (row.length == 1) {
+            console.log(a[0].id);
+        } else {
+            console.log(row.name);
+            alert("请选中一行")
+        }
+    }*/
+
+    /*角色管理-分配数据权限*/
+    /*function data(id) {
+        var url = prefix + '/edit/' + id;
+        $.modal.open("修改数据模板", url);
+    }*/
+
+</script>
+</body>
+</html>

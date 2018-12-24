@@ -509,7 +509,7 @@
             // 添加信息 全屏+标题
             addFullTitle: function (title) {
                 // var url = $.common.isEmpty(id) ? $.table._option.createUrl : $.table._option.createUrl.replace("{id}", id);
-                var url = $.table._option.createUrl;
+                var url = $.table._option.addPointUrl;
                 $.modal.openFull("添加" + title, url);
             },
             // 修改信息 全屏
