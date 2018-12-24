@@ -11,23 +11,23 @@
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-role-add">
         <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
-            <a class="btn btn-success" id="addRowbtn" shiro:hasPermission="system:templet:add">
+            <a class="btn btn-success" id="addRowbtn" shiro:hasPermission="system:datapoint:add">
                 <i class="fa fa-plus"></i> 新增
             </a>
-            <a class="btn btn-primary btn-edit disabled" onclick="javascript:update()"
-               shiro:hasPermission="system:templet:edit">
+            <a class="btn btn-primary btn-edit" onclick="javascript:update()"
+               shiro:hasPermission="system:datapoint:edit">
                 <!--onclick="$.operate.edit()"-->
-                <i class="fa fa-edit"></i> 修改
+                <i class="fa fa-edit"></i> 保存
             </a>
-            <a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()"
-               shiro:hasPermission="system:templet:remove">
+            <a class="btn btn-danger btn-del disabled" id="removeBtn"
+               shiro:hasPermission="system:datapoint:remove">
                 <i class="fa fa-remove"></i> 删除
             </a>
             <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:data:export">
                 <i class="fa fa-download"></i> 导出
             </a>-->
         </div>
-        <table id="reportTable"></table>
+        <table id="bootstrap-table"></table>
         <!--<div class="col-sm-12 select-table table-striped">-->
         <!--<table id="reportTable" data-mobile-responsive="true"></table>-->
         <!--</div>-->
@@ -38,13 +38,252 @@
 <!--<script th:src="@{/ajax/libs/bootstrap-table/extensions/editable/bootstrap-table-editable.min.js}"></script>-->
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>-->
 <script th:inline="javascript">
-    var addFlag = [[${@permission.hasPermi('system:templet:add')}]];
-    var editFlag = [[${@permission.hasPermi('system:templet:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
+    var addFlag = [[${@permission.hasPermi('system:datapoint:add')}]];
+    var editFlag = [[${@permission.hasPermi('system:datapoint:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:datapoint:remove')}]];
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/datapoint";
 
+
+    /*$(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            addPointUrl: addPoint + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "id",
+            modalName: "数据模板",
+            search: false,
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: "pointName",
+                    title: "数据点名称",
+                }, {
+                    field: "dataType",
+                    title: "数据类型",
+                }, {
+                    field: "registerAdr",
+                    title: "寄存器",
+                },
+                {
+                    field: "valueType",
+                    title: "数值类型",
+                }, {
+                    field: "decimalLen",
+                    title: "小数位数",
+                }, {
+                    field: "readType",
+                    title: "读写",
+                }, {
+                    field: "registerLen",
+                    title: "寄存器长度"
+                }, {
+                    field: "unit",
+                    title: "单位"
+                }, {
+                    field: "formula",
+                    title: "公式"
+                }, {
+                    field: "storageType",
+                    title: "数据存储",
+                }]
+        };
+        $.table.init(options);
+        var $table = $('#bootstrap-table');
+        var $button = $('#addRowbtn');
+        $button.click(function () {
+            $table.bootstrapTable('insertRow', {
+                index: 0,
+                row: {
+                    pointName: '',
+                    dataType: 1,
+                    registerAdr: '',
+                    valueType: 1,
+                    decimalLen: 0,
+                    readType: 0,
+                    registerLen: '',
+                    unit: '',
+                    formula: '',
+                    storageType: 1
+                }
+            });
+        });
+    });*/
+
     $(function () {
+        var $table = $('#bootstrap-table');
+        var $button = $('#addRowbtn');
+        var $remove = $('#removeBtn');
+        var options = {
+            toolbar: "#toolbar",
+            idField: "Id",
+            pagination: true,
+            showRefresh: true,
+            search: true,
+            clickToSelect: false,
+            queryParams: function (param) {
+                return {};
+            },
+            //url: "/Editable/GetUsers",
+            //data: [{UserName : "1",Age : 20,Birthday:"2015-1-1",DeptName:"bufen",Hodd:"wu"},{UserName : "2",Age : 21,Birthday:"20135-1-1",DeptName:"b1ufen",Hodd:"w4u"}],
+            columns: [{
+                checkbox: true
+            }, {
+                field: "id",
+                title: "唯一id",
+                visible: false
+            }, {
+                field: "pointName",
+                title: "数据点名称",
+                editable: {
+                    type: 'text',
+                    title: '数据点名称',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '数据点名称不能为空';
+
+                    }
+                }
+            }, {
+                field: "dataType",
+                title: "数据类型",
+                editable: {
+                    type: 'select',
+                    title: '数据类型',
+                    mode: "inline",
+                    source: [{value: "1", text: "数值型"}]
+                }
+            }, {
+                field: "registerAdr",
+                title: "寄存器",
+                editable: {
+                    type: 'text',
+                    title: '寄存器',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '寄存器地址不能为空';
+                    }
+                }
+            },
+                {
+                    field: "valueType",
+                    title: "数值类型",
+                    editable: {
+                        type: 'select',
+                        title: '数值类型',
+                        mode: "inline",
+                        source: [
+                            {value: "1", text: "2字节无符号整数"},
+                            {value: "2", text: "2字节有符号整数"},
+                            {value: "3", text: "4字节无符号整数(AB CD)"},
+                            {value: "4", text: "4字节无符号整数(CD AB)"},
+                            {value: "5", text: "4字节有符号整数(AB CD)"},
+                            {value: "6", text: "4字节有符号整数(CD AB)"},
+                            {value: "7", text: "4字节浮点型(AB CD)"},
+                            {value: "8", text: "4字节浮点型(CD AB)"}
+                        ]
+                    }
+                }, {
+                    field: "decimalLen",
+                    title: "小数位数",
+                    editable: {
+                        type: 'select',
+                        title: '小数位数',
+                        mode: "inline",
+                        source: [
+                            {value: 0, text: "0(小数位数)"},
+                            {value: 1, text: "1(小数位数)"},
+                            {value: 2, text: "2(小数位数)"},
+                            {value: 3, text: "3(小数位数)"},
+                            {value: 4, text: "4(小数位数)"}
+                        ]
+                    }
+                }, {
+                    field: "readType",
+                    title: "读写",
+                    editable: {
+                        type: 'select',
+                        title: '读写',
+                        mode: "inline",
+                        source: [
+                            {value: 0, text: "只读"},
+                            {value: 1, text: "读写"},
+                            {value: 2, text: "只写"}
+                        ]
+                    }
+                }, {
+                    field: "registerLen",
+                    title: "寄存器长度"
+                }, {
+                    field: "unit",
+                    title: "单位"
+                }, {
+                    field: "formula",
+                    title: "公式"
+                }, {
+                    field: "storageType",
+                    title: "数据存储",
+                    editable: {
+                        type: 'select',
+                        title: '数据存储',
+                        mode: "inline",
+                        source: [
+                            {value: 1, text: "不存储"},
+                            {value: 2, text: "存储"},
+                            {value: 3, text: "变化时存储"}
+                        ]
+                    }
+                }]
+        };
+        $button.click(function () {
+            $table.bootstrapTable('insertRow', {
+                index: 0,
+                row: {
+                    id: guid(),
+                    pointName: '',
+                    dataType: 1,
+                    registerAdr: '',
+                    valueType: 1,
+                    decimalLen: 0,
+                    readType: 0,
+                    registerLen: '',
+                    unit: '',
+                    formula: '',
+                    storageType: 1
+                }
+            });
+        });
+        $remove.click(function () {
+
+            // $table.bootstrapTable('removeAll');
+            //批量删除
+            var ids = $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+            // var rows = $table
+            // alert(ids);
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            });
+
+        });
+        $table.bootstrapTable(options);
+
+        function guid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+    });
+
+    /*$(function () {
         var $table = $('#reportTable');
         var $button = $('#addRowbtn');
         var $getTableData = $('#getTableData');
@@ -129,12 +368,12 @@
                 }, sortable: true
                 }
             ],
-            /**
+            /!**
              * @param {点击列的 field 名称} field
              * @param {点击列的 value 值} value
              * @param {点击列的整行数据} row
              * @param {td 元素} $element
-             */
+             *!/
             onClickCell: function (field, value, row, $element) {
                 $element.attr('contenteditable', true);
                 $element.blur(function () {
@@ -158,7 +397,7 @@
             })
         }
 
-    });
+    });*/
 
     /*$(function () {
         var options = {
