@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css"-->
+<!--rel="stylesheet"/>-->
+
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-role-add">
+        <div class="btn-groups-sm hidden-xs" id="toolbar" role="groups">
+            <input id="devId" name="devId" type="hidden" th:value="${devId}"/>
+            <a class="btn btn-success" id="addRowbtn" shiro:hasPermission="system:datapoint:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary" id="saveBtn"
+               shiro:hasPermission="system:datapoint:edit">
+                <!--onclick="$.operate.edit()"-->
+                <i class="fa fa-edit"></i> 保存
+            </a>
+            <a class="btn btn-danger btn-del disabled" id="removeBtn"
+               shiro:hasPermission="system:datapoint:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+        </div>
+        <table id="bootstrap-table"></table>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+<script th:inline="javascript">
+    var addFlag = [[${@permission.hasPermi('system:datapoint:add')}]];
+    var editFlag = [[${@permission.hasPermi('system:datapoint:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:datapoint:remove')}]];
+    var datas = [[${@dict.getType('sys_normal_disable')}]];
+    var prefix = ctx + "system/datapoint";
+    $(function () {
+        console.log(prefix);
+        var $table = $('#bootstrap-table');
+        var $add = $('#addRowbtn');
+        var $remove = $('#removeBtn');
+        var $save = $('#saveBtn');
+        var devId = $("input[name='devId']").val();
+        var options = {
+            toolbar: "#toolbar",
+            idField: "Id",
+            pagination: false,
+            showRefresh: true,
+            search: true,
+            clickToSelect: false,
+            queryParams: function (param) {
+                return {};
+            },
+            //url: "/Editable/GetUsers",
+            //data: [{UserName : "1",Age : 20,Birthday:"2015-1-1",DeptName:"bufen",Hodd:"wu"},{UserName : "2",Age : 21,Birthday:"20135-1-1",DeptName:"b1ufen",Hodd:"w4u"}],
+            columns: [{
+                checkbox: true
+            }, {
+                field: "id",
+                title: "唯一id",
+                visible: false
+            }, {
+                field: "devId",
+                title: "设备Id",
+                visible: false
+            }, {
+                field: "slaveNum",
+                title: "序号",
+                editable: {
+                    type: 'text',
+                    title: '序号',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '序号不能为空';
+
+                    }
+                }
+            }, {
+                field: "slaveName",
+                title: "名称",
+                editable: {
+                    type: 'text',
+                    title: '名称',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '名称不能为空';
+                    }
+                }
+            }, {
+                field: "slaveNum",
+                title: "设备号",
+                editable: {
+                    type: 'text',
+                    title: '设备号',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '设备号不能为空';
+                    }
+                }
+            },
+                {
+                    field: "tempId",
+                    title: "关联模板",
+                    editable: {
+                        type: 'select',
+                        title: '关联模板',
+                        mode: "inline",
+                        source: function () {
+                            var result = [];
+                            $.ajax({
+                                url: '/system/templet/findAll',
+                                async: false,
+                                type: "post",
+                                data: {},
+                                success: function (data, status) {
+                                    $.each(data, function (key, value) {
+                                        result.push({value: value.id, text: value.modelName});
+                                    });
+                                }
+                            });
+                            return result;
+                        }
+                    }
+                }]
+        };
+        $add.click(function () {
+            $table.bootstrapTable('insertRow', {
+                index: 0,
+                row: {
+                    id: guid(),
+                    devId: devId,
+                    slaveNum: '',
+                    slaveName: '',
+                    slaveNum: '',
+                    tempId: 0
+                }
+            });
+        });
+        $remove.click(function () {
+
+            // $table.bootstrapTable('removeAll');
+            //批量删除
+            var ids = $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.id
+            });
+            // var rows = $table
+            // alert(ids);
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: ids
+            });
+
+        });
+        $save.click(function () {
+            var list = [];//构造集合对象
+            var rows = $table.bootstrapTable('getSelections');
+            if (rows.length == 0) {
+                alert("没有需要添加的数据");
+                return;
+            }
+            for (var i = 0; i < rows.length; i++) {
+                list.push({
+                    'devId': rows[i].devId,
+                    'slaveNum': rows[i].slaveNum,
+                    'slaveName': rows[i].slaveName,
+                    'slaveNum': rows[i].slaveNum,
+                    'tempId': rows[i].tempId
+                });
+            }
+//            var postData = {'list': list};
+            var postData = JSON.stringify(list);
+            $.ajax({
+                url: '/system/slave/add',
+                type: 'post',
+                dataType: 'json',
+//                contentType: 'application/json;charset=utf-8',
+//                traditional: true,
+                data: "list=" + postData,
+                /*success: function (data) {
+                    alert("保存成功");
+                    $.ajax({
+                        url: '/system/templet',
+                        type: 'get',
+                    });
+                },
+                error: function (xhr, state, errorThrown) {
+                    alert("保存失败");
+                }*/
+                error: function (request) {
+                    $.modal.alertError("系统错误");
+                },
+                success: function (data) {
+                    $.operate.saveSuccess(data);
+                }
+
+            });
+        });
+        $table.bootstrapTable(options);
+
+        function guid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+    });
+
+</script>
+</body>
+</html>

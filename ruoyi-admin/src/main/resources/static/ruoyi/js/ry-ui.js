@@ -507,9 +507,10 @@
                 $.modal.openFull("添加" + $.table._option.modalName, url);
             },
             // 添加信息 全屏+标题
-            addFullTitle: function (title) {
+            addFullTitle: function (title, id) {
                 // var url = $.common.isEmpty(id) ? $.table._option.createUrl : $.table._option.createUrl.replace("{id}", id);
-                var url = $.table._option.addPointUrl;
+                var url = $.table._option.addPointUrl + id;
+                console.log(url);
                 $.modal.openFull("添加" + title, url);
             },
             // 修改信息 全屏

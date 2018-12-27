@@ -37,27 +37,27 @@
                            	 拖拽左侧的表单元素到右侧区域，即可生成相应的HTML代码，表单代码，轻松搞定！
                         </div>
                         <form role="form" class="form-horizontal m-t">
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">文本框：</label>
                                 <div class="col-sm-9">
                                     <input type="text" name="" class="form-control" placeholder="请输入文本">
                                 </div>
                             </div>
 
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">多行文本框：</label>
                                 <div class="col-sm-9">
                                     <textarea type="text" name="" class="form-control" placeholder="请输入文本"></textarea>
                                 </div>
                             </div>
 
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">密码框：</label>
                                 <div class="col-sm-9">
                                     <input type="password" class="form-control" name="password" placeholder="请输入密码">
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">下拉框：</label>
                                 <div class="col-sm-9">
                                     <select class="form-control" name="">
@@ -68,14 +68,14 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">纯文本：</label>
 
                                 <div class="col-sm-9">
                                     <p class="form-control-static">这里是纯文字信息</p>
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">单选框：
                                 </label>
 
@@ -84,7 +84,7 @@
                                     <label class="radio-box"><input type="radio" value="option2" id="optionsRadios2" name="optionsRadios">选项2</label>
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">复选框：</label>
 
                                 <div class="col-sm-9">
@@ -96,7 +96,7 @@
                                         <input type="checkbox" value="option3" id="inlineCheckbox3">选项3</label>
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">切换按钮：
                                 </label>
 
@@ -110,20 +110,20 @@
 									 </div>
                                 </div>
                             </div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <label class="col-sm-3 control-label">日期选择：</label>
 
                                 <div class="col-sm-9">
-                                     <div class="form-group">
-			                            <div class="input-group date">
-			                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                     <div class="form-groups">
+			                            <div class="input-groups date">
+			                                <span class="input-groups-addon"><i class="fa fa-calendar"></i></span>
 			                                <input type="text" class="form-control" value="2018-04-20">
 			                            </div>
 			                        </div>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
-                            <div class="form-group draggable">
+                            <div class="form-groups draggable">
                                 <div class="col-sm-12 col-sm-offset-3">
 									<button type="submit" class="btn btn-primary">提交</button>
 									<button onclick="$.modal.close()" class="btn btn-danger" type="button">关闭</button>
@@ -169,7 +169,7 @@
    <script th:src="@{/ajax/libs/beautifyhtml/beautifyhtml.js}"></script>
    <script>
        $(document).ready(function(){setup_draggable();$("#n-columns").on("change",function(){var v=$(this).val();if(v==="1"){var $col=$(".form-body .col-md-12").toggle(true);$(".form-body .col-md-6 .draggable").each(function(i,el){$(this).remove().appendTo($col)});$(".form-body .col-md-6").toggle(false)}else{var $col=$(".form-body .col-md-6").toggle(true);$(".form-body .col-md-12 .draggable").each(function(i,el){$(this).remove().appendTo(i%2?$col[1]:$col[0])});$(".form-body .col-md-12").toggle(false)}});$("#copy-to-clipboard").on("click",function(){var $copy=$(".form-body").clone().appendTo(document.body);$copy.find(".tools, :hidden").remove();$.each(["draggable","droppable","sortable","dropped","ui-sortable","ui-draggable","ui-droppable","form-body"],function(i,c){$copy.find("."+c).removeClass(c).removeAttr("style")});var html=html_beautify($copy.html());$copy.remove();$modal=get_modal(html).modal("show");$modal.find(".btn").remove();$modal.find(".modal-title").html("复制HTML代码");$modal.find(":input:first").select().focus();return false})});var setup_draggable=function(){$(".draggable").draggable({appendTo:"body",helper:"clone"});$(".droppable").droppable({accept:".draggable",helper:"clone",hoverClass:"droppable-active",drop:function(event,ui){$(".empty-form").remove();var $orig=$(ui.draggable);if(!$(ui.draggable).hasClass("dropped")){var $el=$orig.clone().addClass("dropped").css({"position":"static","left":null,"right":null}).appendTo(this);var id=$orig.find(":input").attr("id");if(id){id=id.split("-").slice(0,-1).join("-")+"-"+(parseInt(id.split("-").slice(-1)[0])+1);$orig.find(":input").attr("id",id);$orig.find("label").attr("for",id)}$('<p class="tools col-sm-12 col-sm-offset-3">						<a class="edit-link">编辑HTML<a> | 						<a class="remove-link">移除</a></p>').appendTo($el)}else{if($(this)[0]!=$orig.parent()[0]){var $el=$orig.clone().css({"position":"static","left":null,"right":null}).appendTo(this);$orig.remove()}}}}).sortable()};var get_modal=function(content){var modal=$('<div class="modal" style="overflow: auto;" tabindex="-1">	<div class="modal-dialog"><div class="modal-content"><div class="modal-header"><a type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a><h4 class="modal-title">编辑HTML</h4></div><div class="modal-body ui-front">	<textarea class="form-control" 	style="min-height: 200px; margin-bottom: 10px;font-family: Monaco, Fixed">'+content+'</textarea><button class="btn btn-success">更新HTML</button></div>				</div></div></div>').appendTo(document.body);return modal};$(document).on("click",".edit-link",function(ev){var $el=$(this).parent().parent();var $el_copy=$el.clone();var $edit_btn=$el_copy.find(".edit-link").parent().remove();var $modal=get_modal(html_beautify($el_copy.html())).modal("show");$modal.find(":input:first").focus();$modal.find(".btn-success").click(function(ev2){var html=$modal.find("textarea").val();if(!html){$el.remove()}else{$el.html(html);$edit_btn.appendTo($el)}$modal.modal("hide");return false})});$(document).on("click",".remove-link",function(ev){$(this).parent().parent().remove()});
-       $(".input-group.date").datepicker({todayBtn: "linked",keyboardNavigation: !1,forceParse: !1,calendarWeeks: !0,autoclose: !0});
+       $(".input-groups.date").datepicker({todayBtn: "linked",keyboardNavigation: !1,forceParse: !1,calendarWeeks: !0,autoclose: !0});
    </script>
 </body>
 </html>

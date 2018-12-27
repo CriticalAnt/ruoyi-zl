@@ -43,7 +43,7 @@
             </form>
         </div>
 
-        <div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+        <div class="btn-groups-sm hidden-xs" id="toolbar" role="groups">
             <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:templet:add">
                 <i class="fa fa-plus"></i> 新增
             </a>
@@ -63,6 +63,7 @@
         <div class="col-sm-12 select-table table-striped">
             <table id="bootstrap-table" data-mobile-responsive="true"></table>
         </div>
+        <form id="showDatapoint" method="get"></form>
     </div>
 </div>
 <div th:include="include :: footer"></div>
@@ -70,20 +71,21 @@
     var addFlag = [[${@permission.hasPermi('system:templet:add')}]];
     var editFlag = [[${@permission.hasPermi('system:templet:edit')}]];
     var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
+    var showFlag = [[${@permission.hasPermi('system:templet:show')}]];
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/templet";
     var addPoint = ctx + "system/datapoint";
+    var viewDic = ctx + "system/dic";
 
 
     $(function () {
         var options = {
             url: prefix + "/list",
             createUrl: prefix + "/add",
-            addPointUrl: addPoint + "/add",
+            addPointUrl: addPoint + "/add/",
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-//            sortName: "",
             sortName: "id",
             modalName: "数据模板",
             search: false,
@@ -102,50 +104,20 @@
                     sortable: true
                 },
                 {
-                    field: 'wtf',
+                    field: 'relationCount',
                     title: '关联数据点',
                     // sortable: true
                 },
-//                {
-//                    field: 'roleId',
-//                    title: '角色编号'
-//                },
-//                {
-//                    field: 'roleName',
-//                    title: '角色名称',
-//                    sortable: true
-//                },
-//                {
-//                    field: 'roleKey',
-//                    title: '权限字符',
-//                    sortable: true
-//                },
-//                {
-//                    field: 'roleSort',
-//                    title: '显示顺序',
-//                    sortable: true
-//                },
-//                {
-//                    field: 'status',
-//                    title: '状态',
-//                    align: 'center',
-//                    formatter: function(value, row, index) {
-//                        return $.table.selectDictLabel(datas, value);
-//                    }
-//                },
-//                {
-//                    field: 'createTime',
-//                    title: '创建时间',
-//                    sortable: true
-//                },
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs ' + addFlag + '" href="#" onclick="$.operate.addFullTitle(\'' + '数据点' + '\')"><i class="fa fa-edit"></i>添加数据点</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + addFlag + '" href="#" onclick="$.operate.addFullTitle(\'' + '数据点' + '\',\'' + row.id + '\')"><i class="fa fa-edit"></i>添加数据点</a> ');
                         actions.push('<a class="btn btn-primary btn-xs ' + editFlag + '" href="#" onclick="data(\'' + row.id + '\')"><i class="fa fa-check-square-o"></i>编辑</a> ');
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+//                        actions.push('<a class="btn btn-danger btn-xs " href="#" onclick="jumpToDic(\'' + row.id + '\')"><i class="fa fa-remove"></i>查看</a>');
+                        actions.push('<button class="btn btn-danger btn-xs ' + showFlag + '" href="#" onclick="show(\'' + row.id + '\')"><i class="fa fa-info"></i>查看</button>');
                         return actions.join('');
                     }
                 }]
@@ -157,6 +129,19 @@
     function data(id) {
         var url = prefix + '/edit/' + id;
         $.modal.open("修改数据模板", url);
+    }
+
+    /*跳转到数据字典*/
+    function jumpToDic(id) {
+        var url = viewDic + '/list/' + id;
+        $.ajax({
+            url: url,
+            type: 'get',
+        });
+    }
+
+    function show(id) {
+        $("#showDatapoint").attr("action", viewDic + '/list/' + id).submit();
     }
 </script>
 </body>

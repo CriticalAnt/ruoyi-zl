@@ -7,43 +7,43 @@
 		<form class="form-horizontal m" id="form-dept-edit" th:object="${dept}">
 			<input name="deptId" type="hidden" th:field="*{deptId}" />
 			<input id="treeId" name="parentId" type="hidden" th:field="*{parentId}" />
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label ">上级部门：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" id="treeName" onclick="selectDeptTree()" readonly="true" th:field="*{parentName}"/>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">部门名称：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="deptName" th:field="*{deptName}" id="deptName">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">显示排序：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="orderNum" th:field="*{orderNum}">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">负责人：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="leader" th:field="*{leader}">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">联系电话：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="phone" th:field="*{phone}">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">邮箱：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="email" th:field="*{email}">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">部门状态：</label>
 				<div class="col-sm-8">
 					<div class="radio-box" th:each="dict : ${@dict.getType('sys_normal_disable')}">

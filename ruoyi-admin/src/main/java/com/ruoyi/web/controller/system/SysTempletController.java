@@ -5,8 +5,8 @@ import com.ruoyi.common.base.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.framework.web.page.TableDataInfo;
-import com.ruoyi.system.domain.SysRole;
 import com.ruoyi.system.domain.SysTemplet;
+import com.ruoyi.system.service.ISysDatapointService;
 import com.ruoyi.system.service.ISysTempletService;
 import com.ruoyi.web.core.base.BaseController;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -28,7 +28,10 @@ import java.util.List;
 public class SysTempletController extends BaseController {
 
     @Autowired
-    private ISysTempletService dataService;
+    private ISysTempletService templetService;
+
+    @Autowired
+    private ISysDatapointService datapointService;
 
     private String prefix = "system/templet";
 
@@ -43,8 +46,19 @@ public class SysTempletController extends BaseController {
     @ResponseBody
     public TableDataInfo list(SysTemplet data) {
         startPage();
-        List<SysTemplet> list = dataService.selectTempletList(data);
+        List<SysTemplet> list = templetService.selectTempletList(data);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).setRelationCount(datapointService.countByTempId(list.get(i).getId()));
+        }
         return getDataTable(list);
+    }
+
+    @RequiresPermissions("system:templet:findAll")
+    @PostMapping("/findAll")
+    @ResponseBody
+    public List<SysTemplet> findAll(SysTemplet data) {
+        List<SysTemplet> list = templetService.selectTempletList(data);
+        return list;
     }
 
     @RequiresPermissions("system:templet:remove")
@@ -53,7 +67,7 @@ public class SysTempletController extends BaseController {
     @ResponseBody
     public AjaxResult remove(String ids) {
         try {
-            return toAjax(dataService.deleteTempletByIds(ids));
+            return toAjax(templetService.deleteTempletByIds(ids));
         } catch (Exception e) {
             return error(e.getMessage());
         }
@@ -72,7 +86,7 @@ public class SysTempletController extends BaseController {
     public AjaxResult addSave(SysTemplet data) {
         data.setCreateBy(ShiroUtils.getLoginName());
         ShiroUtils.clearCachedAuthorizationInfo();
-        return toAjax(dataService.insertTempletData(data));
+        return toAjax(templetService.insertTempletData(data));
 
     }
 
@@ -91,6 +105,6 @@ public class SysTempletController extends BaseController {
     public AjaxResult editSave(SysTemplet templet) {
         templet.setUpdateBy(ShiroUtils.getLoginName());
         ShiroUtils.clearCachedAuthorizationInfo();
-        return toAjax(dataService.updateTemplet(templet));
+        return toAjax(templetService.updateTemplet(templet));
     }
 }

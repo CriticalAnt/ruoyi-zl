@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDatapointMapper">
+
+    <sql id="selectDatapoint">
+        SELECT
+            id AS "id",
+            temp_id AS "tempId",
+            point_name AS "pointName",
+            data_type AS "dataType",
+            read_type AS "readType",
+            register_adr AS "registerAdr",
+            value_type AS "valueType",
+            decimal_len AS "decimalLen",
+            register_len AS "registerLen",
+            unit AS "unit",
+            formula AS "formula",
+            storage_type AS "storageType"
+        FROM zl_data_point
+    </sql>
+
+    <insert id="insert" parameterType="SysDatapoint">
+        INSERT INTO zl_data_point
+        (
+        temp_id,
+        point_name,
+        data_type,
+        read_type,
+        register_adr,
+        value_type,
+        decimal_len,
+        register_len,
+        unit,
+        formula,
+        storage_type
+        )
+        VALUES (
+        #{tempId},
+        #{pointName},
+        #{dataType},
+        #{readType},
+        #{registerAdr},
+        #{valueType},
+        #{decimalLen},
+        #{registerLen},
+        #{unit},
+        #{formula},
+        #{storageType}
+        )
+    </insert>
+
+    <select id="countByTempId" resultType="Integer">
+        SELECT
+        count(*)
+        FROM
+        zl_data_point a
+        LEFT JOIN zl_data_model b ON a.temp_id = b.id
+        WHERE
+        a.del_flag = 0 AND a.temp_id = #{tempId}
+    </select>
+
+    <select id="findAll" resultType="SysDatapoint">
+
+        <include refid="selectDatapoint"/>
+        WHERE del_flag = 0
+
+    </select>
+
+    <delete id="deleteByTempId" parameterType="Long">
+        UPDATE zl_data_point SET del_flag = '1'
+        WHERE temp_id=#{tempId}
+    </delete>
+
+    <delete id="deleteDatapointByIds" parameterType="Long">
+        update zl_data_point set del_flag = '1' where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectById" resultType="SysDatapoint" parameterType="Long">
+        <include refid="selectDatapoint"/>
+        WHERE del_flag = 0 AND id = #{dicId}
+    </select>
+
+    <update id="update" parameterType="SysDatapoint">
+        UPDATE zl_data_point SET
+        point_name = #{pointName},
+        data_type = #{dataType},
+        read_type = #{readType},
+        register_adr = #{registerAdr},
+        value_type = #{valueType},
+        decimal_len = #{decimalLen},
+        register_len = #{registerLen},
+        unit = #{unit},
+        formula = #{formula},
+        storage_type = #{storageType}
+        WHERE del_flag = 0 AND id = #{id}
+    </update>
+
+</mapper>

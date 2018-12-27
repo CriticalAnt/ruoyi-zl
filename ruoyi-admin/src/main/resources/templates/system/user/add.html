@@ -6,43 +6,43 @@
 	<div class="wrapper wrapper-content animated fadeInRight ibox-content">
 		<form class="form-horizontal m" id="form-user-add">
 			<input name="deptId"  type="hidden" id="treeId"/>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label ">登录名称：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" id="loginName" name="loginName"/>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">部门名称：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="deptName" onclick="selectDeptTree()" readonly="true" id="treeName">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">用户名称：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="userName" id="userName">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">密码：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="password" name="password" id="password" th:value="${@config.getKey('sys.user.initPassword')}">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">邮箱：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="email" id="email">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">手机：</label>
 				<div class="col-sm-8">
 					<input class="form-control" type="text" name="phonenumber" id="phonenumber">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">性别：</label>
 				<div class="col-sm-8">
 					<select id="sex" class="form-control m-b" th:with="type=${@dict.getType('sys_user_sex')}">
@@ -50,7 +50,7 @@
 	                </select>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">状态：</label>
 				<div class="col-sm-8">
 					<div class="onoffswitch">
@@ -62,7 +62,7 @@
                      </div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">岗位：</label>
 				<div class="col-sm-8">
 					<select id="post" name="post" class="form-control select2-hidden-accessible" multiple="">
@@ -71,7 +71,7 @@
 					
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-groups">
 				<label class="col-sm-3 control-label">角色：</label>
 				<div class="col-sm-8">
 					<label th:each="role:${roles}" class="check-box">

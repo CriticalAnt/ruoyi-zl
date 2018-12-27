@@ -1197,7 +1197,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#fk'/></svg></td>
-		<td><a name='qrtz_blob_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_blob_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1209,13 +1209,13 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;blob&#95;triggers</td>
-		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
 	<tr>
 		<td><svg width='14' height='14'><use xlink:href='#fk'/></svg></td><td>qrtz_blob_triggers_ibfk_1</td>
-		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group) </td>
+		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups) </td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1273,7 +1273,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#fk'/></svg></td>
-		<td><a name='qrtz_cron_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_cron_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1291,13 +1291,13 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;cron&#95;triggers</td>
-		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
 	<tr>
 		<td><svg width='14' height='14'><use xlink:href='#fk'/></svg></td><td>qrtz_cron_triggers_ibfk_1</td>
-		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group) </td>
+		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups) </td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1329,7 +1329,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*</td>
-		<td><a name='qrtz_fired_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_fired_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1371,7 +1371,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
-		<td><a name='qrtz_fired_triggers.job_group'>job&#95;group</a></td>
+		<td><a name='qrtz_fired_triggers.job_group'>job&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1415,7 +1415,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#ref'/></svg></td>
-		<td><a name='qrtz_job_details.job_group'>job&#95;group</a></td>
+		<td><a name='qrtz_job_details.job_group'>job&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1463,7 +1463,7 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;job&#95;details</td>
-		<td> ON sched&#95;name&#44; job&#95;name&#44; job&#95;group</td>
+		<td> ON sched&#95;name&#44; job&#95;name&#44; job&#95;groups</td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1509,13 +1509,13 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg></td>
-		<td><a name='qrtz_paused_trigger_grps.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_paused_trigger_grps.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;paused&#95;trigger&#95;grps</td>
-		<td> ON sched&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1579,7 +1579,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#fk'/></svg></td>
-		<td><a name='qrtz_simple_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_simple_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1603,13 +1603,13 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;simple&#95;triggers</td>
-		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
 	<tr>
 		<td><svg width='14' height='14'><use xlink:href='#fk'/></svg></td><td>qrtz_simple_triggers_ibfk_1</td>
-		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group) </td>
+		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups) </td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1635,7 +1635,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#fk'/></svg></td>
-		<td><a name='qrtz_simprop_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_simprop_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1707,13 +1707,13 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;simprop&#95;triggers</td>
-		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
 	<tr>
 		<td><svg width='14' height='14'><use xlink:href='#fk'/></svg></td><td>qrtz_simprop_triggers_ibfk_1</td>
-		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group) </td>
+		<td > ( sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups ) ref <a href='#qrtz&#95;triggers'>qrtz&#95;triggers</a> (sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups) </td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -1739,7 +1739,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg><svg width='14' height='14'><use xlink:href='#ref'/></svg></td>
-		<td><a name='qrtz_triggers.trigger_group'>trigger&#95;group</a></td>
+		<td><a name='qrtz_triggers.trigger_group'>trigger&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1751,7 +1751,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#idx'/></svg><svg width='14' height='14'><use xlink:href='#fk'/></svg></td>
-		<td><a name='qrtz_triggers.job_group'>job&#95;group</a></td>
+		<td><a name='qrtz_triggers.job_group'>job&#95;groups</a></td>
 		<td> varchar&#40; 200 &#41;   </td>
 		<td>  </td>
 	</tr>
@@ -1823,17 +1823,17 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;qrtz&#95;triggers</td>
-		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;group</td>
+		<td> ON sched&#95;name&#44; trigger&#95;name&#44; trigger&#95;groups</td>
 		<td>  </td>
 	</tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#idx'/></svg></td><td>sched&#95;name</td>
-		<td> ON sched&#95;name&#44; job&#95;name&#44; job&#95;group</td>
+		<td> ON sched&#95;name&#44; job&#95;name&#44; job&#95;groups</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
 	<tr>
 		<td><svg width='14' height='14'><use xlink:href='#fk'/></svg></td><td>qrtz_triggers_ibfk_1</td>
-		<td > ( sched&#95;name&#44; job&#95;name&#44; job&#95;group ) ref <a href='#qrtz&#95;job&#95;details'>qrtz&#95;job&#95;details</a> (sched&#95;name&#44; job&#95;name&#44; job&#95;group) </td>
+		<td > ( sched&#95;name&#44; job&#95;name&#44; job&#95;groups ) ref <a href='#qrtz&#95;job&#95;details'>qrtz&#95;job&#95;details</a> (sched&#95;name&#44; job&#95;name&#44; job&#95;groups) </td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -2097,7 +2097,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#pk'/></svg></td>
-		<td><a name='sys_job.job_group'>job&#95;group</a></td>
+		<td><a name='sys_job.job_group'>job&#95;groups</a></td>
 		<td> varchar&#40; 64 &#41;   DEFAULT '' </td>
 		<td> 任务组名 </td>
 	</tr>
@@ -2157,7 +2157,7 @@ varchar(1)</title></a>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#pk'/></svg></td><td>pk&#95;sys&#95;job</td>
-		<td> ON job&#95;id&#44; job&#95;name&#44; job&#95;group</td>
+		<td> ON job&#95;id&#44; job&#95;name&#44; job&#95;groups</td>
 		<td>  </td>
 	</tr>
 </tbody>
@@ -2183,7 +2183,7 @@ varchar(1)</title></a>
 	</tr>
 	<tr>
 		<td>*</td>
-		<td><a name='sys_job_log.job_group'>job&#95;group</a></td>
+		<td><a name='sys_job_log.job_group'>job&#95;groups</a></td>
 		<td> varchar&#40; 64 &#41;   </td>
 		<td> 任务组名 </td>
 	</tr>

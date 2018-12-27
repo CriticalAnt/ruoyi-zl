@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysDeviceMapper">
+
+    <sql id="selectDevices">
+        SELECT
+        id AS "id",
+        dev_name AS "devName",
+        dev_num AS "devNum",
+        groups AS "groups",
+        dev_type AS "devType",
+        protocol AS "protocol",
+        frequency AS "frequency",
+        user AS "user",
+        update_time AS "updateTime"
+        FROM zl_device_info
+    </sql>
+
+    <select id="findAll" resultType="SysDevice">
+
+        <include refid="selectDevices"/>
+        WHERE del_flag = 0
+
+    </select>
+
+    <delete id="deleteDeviceByIds" parameterType="Long">
+        update zl_device_info set del_flag = '1' where id in
+        <foreach collection="array" item="devId" open="(" separator="," close=")">
+            #{devId}
+        </foreach>
+    </delete>
+
+</mapper>
