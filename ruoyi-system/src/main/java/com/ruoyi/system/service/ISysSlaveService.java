@@ -1,6 +1,5 @@
 package com.ruoyi.system.service;
 
-import com.ruoyi.system.domain.SysDatapoint;
 import com.ruoyi.system.domain.SysSlave;
 
 import java.util.List;
@@ -15,4 +14,12 @@ public interface ISysSlaveService {
     int insert(SysSlave slave);
 
     List<SysSlave> selectByDevId(Long devId);
+
+    List<SysSlave> findAll();
+
+    SysSlave selectById(Long id);
+
+    int deleteByIds(String ids);
+
+    int update(SysSlave slave);
 }

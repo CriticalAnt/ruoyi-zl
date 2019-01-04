@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="role-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            设备名称：
+                            <select id="devName" name="devName" onchange="changeDev()">
+                                <option selected="selected" value="-1">请选择</option>
+                                <option th:each="device:${devices}" th:value="${device.id}" th:text="${device.devName}">
+                                </option>
+                            </select>
+                        </li>
+                        <li>
+                            从机名称：
+                            <select id="slaveName" name="slaveName" th:value="${slaves}" onchange="changeSlave()">
+                                <option value="-1">请选择</option>
+                            </select>
+                        </li>
+                        <li>
+                            数据点名称：
+                            <select id="pointName" name="pointName" onchange="changePoint()">
+                                <option value="-1">请选择</option>
+                            </select>
+                        </li>
+                        <li class="select-time">
+                            <label>时间段： </label>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchHis()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 search-collapse">
+            <div id="chart" style="width: auto;height: 400px"></div>
+            <script type="text/javascript" th:src="@{/chart/echarts.min.js}"></script>
+        </div>
+    </div>
+</div>
+
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var xdata = [];
+    var series = [];
+    var myChart = echarts.init(document.getElementById('chart'));
+    option = {
+        title: {
+            text: "曲线"
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['邮件营销a']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'time',
+            boundaryGap: false,
+            min: 0,
+            max: 100,
+            data: xdata,
+            axisLabel: {
+                show: true
+            }
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: series
+    };
+    // 初次加载图表(无数据)
+    myChart.setOption(option);
+
+    function changeDev() {
+        $("#slaveName option:gt(0)").remove();
+        $("#pointName option:gt(0)").remove();
+        var devId = document.getElementById("devName").value;
+        var slaves = [[${slaves}]];
+        $.each(slaves, function (index, item) {
+            var id = item.id;
+            var name = item.slaveName;
+            if (devId == item.devId)
+                $("#slaveName").append("<option value='" + id + "'>" + name + "</option>")
+
+        })
+    }
+
+    function changeSlave() {
+        $("#pointName option:gt(0)").remove();
+        var slaveId = document.getElementById("slaveName").value;
+        var devId = document.getElementById("devName").value;
+        var points = [[${points}]];
+        $.each(points, function (index, item) {
+            var id = item.pointId;
+            var name = item.pointName;
+            if (slaveId == item.slaveId && devId == item.devId) {
+                console.log(slaveId);
+                $("#pointName").append("<option value='" + id + "'>" + name + "</option>")
+            }
+        });
+    }
+
+    function searchHis() {
+        var devId = document.getElementById("devName").value;
+        var slaveId = document.getElementById("slaveName").value;
+        var pointId = document.getElementById("pointName").value;
+        var startTime = document.getElementById("startTime").value;
+        var endTime = document.getElementById("endTime").value;
+        var min;
+        var max;
+        $.ajax({
+            url: "/system/data/list",
+            type: "GET",
+            dataType: "json",
+            cache: false,
+            async: false,
+            ContentType: "application/json",
+            data: {
+                devId: devId,
+                slaveId: slaveId,
+                pointId: pointId,
+                startTime: startTime,
+                endTime: endTime
+            },
+            success: function (data) {
+                var result = data;
+                xdata = result.xdata;
+                series = result.series;
+                min = result.min;
+                max = result.max;
+            },
+            error: function (msg) {
+
+            }
+        });
+        myChart = echarts.init(document.getElementById('chart'));
+        myChart.setOption({
+            xAxis: [
+                {
+                    type: 'time',
+                    boundaryGap: false,
+                    min: min,
+                    max: max,
+                    data: xdata,
+                }
+            ],
+            series: series
+        });
+    }
+</script>
+</body>
+</html>

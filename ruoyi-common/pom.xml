@@ -69,6 +69,19 @@
 		    <groupId>org.yaml</groupId>
 		    <artifactId>snakeyaml</artifactId>
 		</dependency>
+
+
+		<!--redis-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!--mongodb-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
 		
     </dependencies>
   

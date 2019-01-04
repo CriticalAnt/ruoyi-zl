@@ -14,4 +14,15 @@ public interface SysSlaveMapper {
     int insert(SysSlave slave);
 
     List<SysSlave> selectByDevId(Long devId);
+
+    int deleteByIds(Long[] slaveIds);
+
+    SysSlave selectById(Long id);
+
+    int update(SysSlave slave);
+
+    int deleteByDevIds(Long[] devIds);
+
+    List<SysSlave> findAll();
+
 }

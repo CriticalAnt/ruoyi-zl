@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-role-add">
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">设备名称：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="devName" id="devName"/>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">设备编号：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="devNum" id="devNum"/>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">所属分组：</label>
+            <div class="col-sm-8">
+                <select id="groups" name="groups" class="form-control m-b">
+                    <option value="默认分组">默认分组</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">设备类型：</label>
+            <div class="col-sm-8">
+                <select id="devType" name="devType" class="form-control m-b">
+                    <option value="默认分组">默认设备</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">通讯协议：</label>
+            <div class="col-sm-8">
+                <select id="protocol" name="protocol" class="form-control m-b">
+                    <option value="ModBus-RTU">ModBus-RTU</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">采集频率：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="frequency" id="frequency"/>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">所属用户：</label>
+            <div class="col-sm-8">
+                <select id="user" name="user" class="form-control m-b">
+                    <option value="admin">admin</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+<script type="text/javascript">
+    $(function() {
+        var url = ctx + "system/menu/roleMenuTreeData";
+        var options = {
+            id: "menuTrees",
+            url: url,
+            check: { enable: true, nocheckInherit: true, chkboxType: { "Y": "ps", "N": "ps" } },
+            expandLevel: 0
+        };
+        $.tree.init(options);
+    });
+
+    $("#form-role-add").validate({
+        rules:{
+            roleName:{
+                required:true,
+                remote: {
+                    url: ctx + "system/role/checkRoleNameUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "roleName" : function() {
+                            return $.common.trim($("#roleName").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            roleKey:{
+                required:true,
+                remote: {
+                    url: ctx + "system/role/checkRoleKeyUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "roleName" : function() {
+                            return $.common.trim($("#roleName").val());
+                        }
+                    },
+                    dataFilter: function(data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            roleSort:{
+                required:true,
+                digits:true
+            },
+        },
+        messages: {
+            "roleName": {
+                remote: "角色名称已经存在"
+            },
+            "roleKey": {
+                remote: "角色权限已经存在"
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            add();
+        }
+    }
+
+    function add() {
+        var devName = $("input[name='devName']").val();
+        var devNum = $("input[name='devNum']").val();
+        var groups = $("#groups").val();
+        var devType = $("#devType").val();
+        var protocol = $("#protocol").val();
+        var frequency = $("input[name='frequency']").val();
+        var user = $("#user").val();
+//        var roleKey = $("input[name='roleKey']").val();
+//        var roleSort = $("input[name='roleSort']").val();
+//        var status = $("input[name='status']").is(':checked') == true ? 0 : 1;
+//        var remark = $("input[name='remark']").val();
+//        var menuIds = $.tree.getCheckedNodes();
+        $.ajax({
+            cache : true,
+            type : "POST",
+            url : ctx + "system/device/add",
+            data : {
+                "devName": devName,
+                "devNum": devNum,
+                "groups": groups,
+                "devType": devType,
+                "protocol": protocol,
+                "frequency": frequency,
+                "user": user
+            },
+            async : false,
+            error : function(request) {
+                $.modal.alertError("系统错误");
+            },
+            success : function(data) {
+                $.operate.saveSuccess(data);
+            }
+        });
+    }
+</script>
+</body>
+</html>

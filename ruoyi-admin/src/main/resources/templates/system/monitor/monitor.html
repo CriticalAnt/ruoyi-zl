@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="role-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            模板名称：<input type="text" name="roleName"/>
+                        </li>
+                        <li>
+                            权限字符：<input type="text" name="roleKey"/>
+                        </li>
+                        <li>
+                            角色状态：<select name="status" th:with="type=${@dict.getType('sys_normal_disable')}">
+                            <option value="">所有</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li class="select-time">
+                            <label>创建时间： </label>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-groups-sm hidden-xs" id="toolbar" role="groups">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:monitor:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+        <form id="showDatapoint" method="get"></form>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var addFlag = [[${@permission.hasPermi('system:templet:add')}]];
+    var editFlag = [[${@permission.hasPermi('system:templet:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
+    var showFlag = [[${@permission.hasPermi('system:templet:show')}]];
+    var datas = [[${@dict.getType('sys_normal_disable')}]];
+    var prefix = ctx + "system/monitor";
+    var addPoint = ctx + "system/datapoint";
+    var viewDic = ctx + "system/dic";
+
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            addPointUrl: addPoint + "/add/",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "id",
+            modalName: "数据模板",
+            search: false,
+            showExport: false,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '模板ID',
+                    sortable: true,
+                    visible: false
+                },
+                {
+                    field: 'devNum',
+                    title: '设备编号',
+                    // sortable: true
+                },
+                {
+                    field: 'devName',
+                    title: '设备名称',
+                    sortable: true
+                }, {
+                    field: 'status',
+                    title: '状态',
+                    sortable: true,
+                    visible: false
+                }, {
+                    title: '状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        var cls = '';
+                        if (row.status == '0')
+                            cls = '<i class="fa fa-remove" style="color: red;"></i>';
+                        else
+                            cls = '<i class="fa fa-check" style="color: green;"></i>';
+                        actions.push(cls);
+                        return actions.join('');
+                    }
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+
+    /*角色管理-分配数据权限*/
+    function data(id) {
+        var url = prefix + '/edit/' + id;
+        $.modal.open("修改数据模板", url);
+    }
+
+    /*跳转到数据字典*/
+    function jumpToDic(id) {
+        var url = viewDic + '/list/' + id;
+        $.ajax({
+            url: url,
+            type: 'get',
+        });
+    }
+
+    function show(id) {
+        $("#showDatapoint").attr("action", viewDic + '/list/' + id).submit();
+    }
+</script>
+</body>
+</html>

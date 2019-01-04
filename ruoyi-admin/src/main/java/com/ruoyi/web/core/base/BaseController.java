@@ -3,17 +3,25 @@ package com.ruoyi.web.core.base;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.base.AjaxResult;
+import com.ruoyi.common.support.Convert;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.framework.web.page.PageDomain;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.framework.web.page.TableSupport;
+import com.ruoyi.server.common.Constant2;
+import com.ruoyi.system.domain.SysCollectionPoint;
+import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.domain.SysUser;
+import com.ruoyi.system.mapper.SysCollectionPointMapper;
+import com.ruoyi.system.service.ISysDeviceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +31,53 @@ import java.util.List;
  * @author ruoyi
  */
 public class BaseController {
+
+    @Autowired
+    ISysDeviceService deviceService;
+
+    @Autowired
+    SysCollectionPointMapper pointMapper;
+
+    /**
+     * 更新TCP服务中的连接内容
+     */
+    public void updatePoints() {
+        List<SysDevice> devices = deviceService.findAll();
+        List<SysCollectionPoint> points = pointMapper.findAll();
+        for (SysDevice device : devices) {
+            List<SysCollectionPoint> list = new ArrayList<>();
+            for (SysCollectionPoint point : points) {
+                if (point.getDevId() == device.getId()) {
+                    list.add(point);
+                }
+            }
+            Constant2.codePoint.put(device.getCode(), list);
+            Constant2.ctxPoints.put(Constant2.registeredCtx.get(device.getCode())
+                    , list);
+        }
+    }
+
+    /**
+     * 更新设备信息
+     */
+    public void updateDevice(String ids) {
+        List<SysDevice> devices = deviceService.selectByIds(Convert.toLongArray(ids));
+        for (SysDevice device : devices) {
+            String code = device.getCode();
+            Constant2.registeredCtx.get(code).close();
+            Constant2.ctxPoints.remove(Constant2.registeredCtx.get(code));
+            Constant2.registeredCode.remove(code);
+            Constant2.registeredCtx.remove(code);
+            Constant2.codePoint.remove(code);
+        }
+    }
+
+    public void addDevice(SysDevice device) {
+        String code = device.getCode();
+        Constant2.registeredCode.put(code, "0");
+    }
+
+
     /**
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
      */

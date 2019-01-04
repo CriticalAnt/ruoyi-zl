@@ -23,5 +23,7 @@ public interface ISysDatapointService {
 
     SysDatapoint selectById(Long dicId);
 
+    List<SysDatapoint> selectByTempId(Long tempId);
+
     int update(SysDatapoint datapoint);
 }

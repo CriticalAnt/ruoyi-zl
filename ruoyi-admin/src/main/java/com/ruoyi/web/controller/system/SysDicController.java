@@ -52,7 +52,11 @@ public class SysDicController extends BaseController {
     public TableDataInfo list(@PathVariable("id") int id, SysDatapoint data) {
         startPage();
         List<Map<String, String>> mapList = new ArrayList<>();
-        List<SysDatapoint> list = datapointService.findAll();
+        List<SysDatapoint> list;
+        if (id == 0)
+            list = datapointService.findAll();
+        else
+            list = datapointService.selectByTempId(Long.valueOf(id));
         for (SysDatapoint point : list) {
             if (id != 0 && point.getTempId() != id)
                 continue;
@@ -79,11 +83,15 @@ public class SysDicController extends BaseController {
     @PostMapping("/remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
+        int num;
         try {
-            return toAjax(datapointService.deleteDatapointByIds(ids));
+            num = datapointService.deleteDatapointByIds(ids);
         } catch (Exception e) {
             return error(e.getMessage());
         }
+        if (num > 0)
+            updatePoints();
+        return toAjax(num);
     }
 
     @GetMapping("/edit/{dicId}")
@@ -96,6 +104,9 @@ public class SysDicController extends BaseController {
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult edit(SysDatapoint datapoint) {
-        return toAjax(datapointService.update(datapoint));
+        int num = datapointService.update(datapoint);
+        if (num > 0)
+            updatePoints();
+        return toAjax(num);
     }
 }

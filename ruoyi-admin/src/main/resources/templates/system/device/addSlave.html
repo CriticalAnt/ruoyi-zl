@@ -37,7 +37,6 @@
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/datapoint";
     $(function () {
-        console.log(prefix);
         var $table = $('#bootstrap-table');
         var $add = $('#addRowbtn');
         var $remove = $('#removeBtn');
@@ -89,7 +88,7 @@
                     }
                 }
             }, {
-                field: "slaveNum",
+                field: "equNum",
                 title: "设备号",
                 editable: {
                     type: 'text',
@@ -122,6 +121,9 @@
                             });
                             return result;
                         }
+                    },
+                    validate: function (v) {
+                        if (!v) return '关联模板不能为空';
                     }
                 }]
         };
@@ -133,7 +135,7 @@
                     devId: devId,
                     slaveNum: '',
                     slaveName: '',
-                    slaveNum: '',
+                    equNum: '',
                     tempId: 0
                 }
             });
@@ -165,7 +167,7 @@
                     'devId': rows[i].devId,
                     'slaveNum': rows[i].slaveNum,
                     'slaveName': rows[i].slaveName,
-                    'slaveNum': rows[i].slaveNum,
+                    'equNum': rows[i].equNum,
                     'tempId': rows[i].tempId
                 });
             }

@@ -13,6 +13,7 @@ public class SysSlave extends BaseEntity {
     private int devId;
     private int slaveNum;
     private String slaveName;
+    private int equNum;
     private int tempId;
     private int delFlag;
 
@@ -46,6 +47,14 @@ public class SysSlave extends BaseEntity {
 
     public void setSlaveName(String slaveName) {
         this.slaveName = slaveName;
+    }
+
+    public int getEquNum() {
+        return equNum;
+    }
+
+    public void setEquNum(int equNum) {
+        this.equNum = equNum;
     }
 
     public int getTempId() {

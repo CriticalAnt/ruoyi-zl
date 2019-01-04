@@ -41,6 +41,8 @@ public class SysSlaveController extends BaseController {
         for (SysSlave slave : slaves) {
             num += slaveService.insert(slave);
         }
+        if (num == slaves.size())
+            updatePoints();
         return toAjax(num == slaves.size() ? 1 : 0);
     }
 
@@ -57,5 +59,35 @@ public class SysSlaveController extends BaseController {
     public String slave(@PathVariable("id") Long id, ModelMap modelMap) {
         modelMap.put("devId", id);
         return prefix + "/slave";
+    }
+
+    @PostMapping("remove")
+    @ResponseBody
+    public AjaxResult remove(String ids) {
+        int num;
+        try {
+            num = slaveService.deleteByIds(ids);
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+        if (num > 0)
+            updatePoints();
+        return toAjax(num);
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") Long id, ModelMap mmap) {
+        SysSlave slave = slaveService.selectById(id);
+        mmap.put("slave", slave);
+        return prefix + "/edit";
+    }
+
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult edit(SysSlave slave) {
+        int num = slaveService.update(slave);
+        if (num > 0)
+            updatePoints();
+        return toAjax(num);
     }
 }

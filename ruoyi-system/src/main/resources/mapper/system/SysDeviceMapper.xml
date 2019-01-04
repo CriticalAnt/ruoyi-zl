@@ -9,6 +9,7 @@
         id AS "id",
         dev_name AS "devName",
         dev_num AS "devNum",
+        code AS "code",
         groups AS "groups",
         dev_type AS "devType",
         protocol AS "protocol",
@@ -31,5 +32,55 @@
             #{devId}
         </foreach>
     </delete>
+
+    <select id="selectById" resultType="SysDevice">
+        <include refid="selectDevices"/>
+        WHERE del_flag = 0 AND id = #{id}
+    </select>
+
+    <select id="selectByIds" parameterType="Long" resultType="SysDevice">
+        <include refid="selectDevices"/>
+        where id in
+        <foreach collection="array" item="devId" open="(" separator="," close=")">
+            #{devId}
+        </foreach>
+    </select>
+
+    <insert id="insert" parameterType="SysDevice">
+        INSERT INTO zl_device_info
+        (
+        dev_name,
+        dev_num,
+        code,
+        groups,
+        dev_type,
+        protocol,
+        frequency,
+        user
+        )
+        VALUES (
+        #{devName},
+        #{devNum},
+        #{code},
+        #{groups},
+        #{devType},
+        #{protocol},
+        #{frequency},
+        #{user}
+        )
+    </insert>
+
+    <update id="update" parameterType="SysDevice">
+        UPDATE zl_device_info
+        SET
+          dev_name = #{devName},
+          dev_num = #{devNum},
+          groups = #{groups},
+          dev_type = #{devType},
+          protocol = #{protocol},
+          frequency = #{frequency},
+          user = #{user}
+        WHERE del_flag = 0 AND id = #{id}
+    </update>
 
 </mapper>

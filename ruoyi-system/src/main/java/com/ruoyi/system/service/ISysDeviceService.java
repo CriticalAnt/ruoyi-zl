@@ -14,4 +14,12 @@ public interface ISysDeviceService {
     List<SysDevice> findAll();
 
     int deleteDeviceByIds(String ids);
+
+    SysDevice selectById(Long id);
+
+    List<SysDevice> selectByIds(Long[] ids);
+
+    int insert(SysDevice device);
+
+    int update(SysDevice device);
 }

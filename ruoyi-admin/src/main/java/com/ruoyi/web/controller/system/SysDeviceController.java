@@ -11,6 +11,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @Author: wtao
@@ -42,6 +43,7 @@ public class SysDeviceController extends BaseController {
     @PostMapping("remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
+        updateDevice(ids);
         try {
             return toAjax(deviceService.deleteDeviceByIds(ids));
         } catch (Exception e) {
@@ -53,5 +55,41 @@ public class SysDeviceController extends BaseController {
     public String add(@PathVariable("devId") Long devId, ModelMap mmap) {
         mmap.put("devId", devId);
         return prefix + "/addSlave";
+    }
+
+    @GetMapping("/edit/{devId}")
+    public String edit(@PathVariable("devId") Long devId, ModelMap modelMap) {
+        modelMap.put("device", deviceService.selectById(devId));
+        return prefix + "/edit";
+    }
+
+    @GetMapping("/add")
+    public String add() {
+        return prefix + "/add";
+    }
+
+    @PostMapping("/add")
+    @ResponseBody
+    public AjaxResult add(SysDevice device) {
+        device.setCode(UUID.randomUUID().toString().replaceAll("-", ""));
+        int num;
+        try {
+            num = deviceService.insert(device);
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+        if (num > 0)
+            addDevice(device);
+        return toAjax(num);
+    }
+
+    @PostMapping("/edit")
+    @ResponseBody
+    public AjaxResult edit(SysDevice device) {
+        try {
+            return toAjax(deviceService.update(device));
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
     }
 }

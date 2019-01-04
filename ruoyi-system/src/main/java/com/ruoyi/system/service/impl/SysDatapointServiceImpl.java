@@ -70,6 +70,11 @@ public class SysDatapointServiceImpl implements ISysDatapointService {
     }
 
     @Override
+    public List<SysDatapoint> selectByTempId(Long tempId) {
+        return datapointMapper.selectByTempId(tempId);
+    }
+
+    @Override
     public int update(SysDatapoint datapoint) {
         return datapointMapper.update(datapoint);
     }

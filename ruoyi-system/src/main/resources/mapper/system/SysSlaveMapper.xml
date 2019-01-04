@@ -10,6 +10,7 @@
         dev_id AS "devId",
         slave_num AS "slaveNum",
         slave_name AS "slaveName",
+        equ_num AS "equNum",
         temp_id AS "tempId"
         FROM zl_device_slave
     </sql>
@@ -20,12 +21,14 @@
         dev_id,
         slave_num,
         slave_name,
+        equ_num,
         temp_id
         )
         VALUES (
         #{devId},
         #{slaveNum},
         #{slaveName},
+        #{equNum},
         #{tempId}
         )
     </insert>
@@ -33,5 +36,45 @@
     <select id="selectByDevId" parameterType="Long" resultType="SysSlave">
         <include refid="selectSlaves"/>
         WHERE dev_id = #{devId} AND del_flag = 0
+    </select>
+
+    <delete id="deleteByIds" parameterType="Long">
+        update zl_device_slave set del_flag = '1' where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="deleteByDevIds" parameterType="Long">
+        update zl_device_slave set del_flag = '1' where dev_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectById" resultType="SysSlave">
+        <include refid="selectSlaves"/>
+        WHERE id = #{id} AND del_flag = 0
+    </select>
+
+    <update id="update" parameterType="SysSlave">
+        UPDATE zl_device_slave SET
+        <if test="devId != null and devId != ''">
+            dev_id = #{devId},
+        </if>
+        slave_num = #{slaveNum},
+        <if test="tempId != null and tempId != ''">
+            temp_id = #{tempId},
+        </if>
+        <if test="equNum != null and equNum != ''">
+            equ_num = #{equNum},
+        </if>
+        slave_name = #{slaveName}
+        WHERE del_flag = 0 AND id = #{id}
+    </update>
+
+    <select id="findAll" resultType="SysSlave">
+        <include refid="selectSlaves"/>
+        WHERE del_flag = 0
     </select>
 </mapper>

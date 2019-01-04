@@ -45,6 +45,7 @@ public class SysDatapointController extends BaseController {
         for (SysDatapoint point : points) {
             num += datapointService.insert(point);
         }
+        updatePoints();
         return toAjax(num == points.size() ? 1 : 0);
 //        return "system/templet/templet";
     }

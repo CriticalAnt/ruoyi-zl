@@ -14,7 +14,7 @@ ruoyi:
 # 开发环境配置
 server:
   # 服务端口
-  port: 80
+  port: 12308
   servlet:
     # 项目contextPath
     context-path: /
@@ -66,7 +66,11 @@ spring:
     restart:
       # 热部署开关
       enabled: true
-
+  #mongodb
+  data:
+      mongodb:
+#        uri: mongodb://47.110.224.150:27017/joyley
+        uri: mongodb://116.62.244.200:27017/joyley
 # MyBatis
 mybatis:
     # 搜索指定包别名
@@ -132,3 +136,20 @@ gen:
   autoRemovePre: true
   # 表前缀(类名不会包含表前缀)
   tablePrefix: sys_
+
+#不能用localhost,否则启动报异常:Unresolved address
+#tcp监听的端口
+tcp:
+  port: 12306
+# bossGroup的线程数
+boss:
+  thread:
+    count: 2
+# worker的线程数
+worker:
+  thread:
+    count: 2
+#是否使用长连接
+so:
+  keepalive:  true
+  backlog: 100

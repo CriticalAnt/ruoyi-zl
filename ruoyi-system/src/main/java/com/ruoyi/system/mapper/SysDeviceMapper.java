@@ -14,4 +14,12 @@ public interface SysDeviceMapper {
     List<SysDevice> findAll();
 
     int deleteDeviceByIds(Long[] devId);
+
+    SysDevice selectById(Long id);
+
+    int insert(SysDevice device);
+
+    int update(SysDevice device);
+
+    List<SysDevice> selectByIds(Long[] ids);
 }

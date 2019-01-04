@@ -12,6 +12,7 @@ public class SysDevice {
     private int id;
     private String devName;
     private String devNum;
+    private String code;
     private String groups;
     private String devType;
     private String protocol;
@@ -41,6 +42,14 @@ public class SysDevice {
 
     public void setDevNum(String devNum) {
         this.devNum = devNum;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getGroups() {

@@ -91,6 +91,9 @@
                     mode: "inline",
                     validate: function (v) {
                         if (!v) return '寄存器地址不能为空';
+                        v = Number(v);
+                        console.log(v);
+                        if (v.toString() == "NaN") return '请输入正确的地址';
                     }
                 }
             },
@@ -145,10 +148,26 @@
                     title: "寄存器长度"
                 }, {
                     field: "unit",
-                    title: "单位"
+                    title: "单位",
+                    editable: {
+                        type: 'text',
+                        title: '单位',
+                        mode: "inline",
+                        validate: function (v) {
+                            if (!v) return '单位不能为空';
+                        }
+                    }
                 }, {
                     field: "formula",
-                    title: "公式"
+                    title: "公式",
+                    editable: {
+                        type: 'text',
+                        title: '公式',
+                        mode: "inline",
+                        validate: function (v) {
+                            if (!v) return '公式不能为空';
+                        }
+                    }
                 }, {
                     field: "storageType",
                     title: "数据存储",
@@ -172,13 +191,13 @@
                     tempId: tempId,
                     pointName: '',
                     dataType: 0,
-                    registerAdr: '',
+                    registerAdr: 0,
                     valueType: 0,
                     decimalLen: 0,
                     readType: 0,
                     registerLen: 0,
                     unit: '',
-                    formula: '',
+                    formula: 'x',
                     storageType: 0
                 }
             });
@@ -206,6 +225,7 @@
                 return;
             }
             for (var i = 0; i < rows.length; i++) {
+                var unit = encodeURIComponent(rows[i].unit);
                 list.push({
                     'tempId': rows[i].tempId,
                     'pointName': rows[i].pointName,
@@ -215,7 +235,7 @@
                     'decimalLen': rows[i].decimalLen,
                     'readType': rows[i].readType,
                     'registerLen': rows[i].registerLen,
-                    'unit': rows[i].unit,
+                    'unit': unit,
                     'formula': rows[i].formula,
                     'storageType': rows[i].storageType
                 });

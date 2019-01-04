@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org"
+>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg" onbeforeunload="timerStop()">
+
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="role-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            设备名称：
+                            <select id="devName" name="devName" onchange="changeDev()">
+                                <option selected="selected" value="-1">请选择</option>
+                                <option th:each="device:${devices}" th:value="${device.id}" th:text="${device.devName}">
+                                </option>
+                            </select>
+                        </li>
+                        <li>
+                            从机名称：
+                            <select id="slaveName" name="slaveName" th:value="${slaves}" onchange="changeSlave()">
+                                <option value="-1">请选择</option>
+                            </select>
+                        </li>
+                        <li>
+                            数据点名称：
+                            <select id="pointName" name="pointName" onchange="changePoint()">
+                                <option value="-1">请选择</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-danger btn-del" onclick="timerStop()">
+                                <i class="fa fa-remove"></i> 停止
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 search-collapse">
+            <div id="chart" style="width: auto;height: 400px"></div>
+            <script type="text/javascript" th:src="@{/chart/echarts.min.js}"></script>
+        </div>
+    </div>
+</div>
+
+<div th:include="include :: footer"></div>
+<script th:inline="javascript">
+    var timer;
+    var devId;
+    var slaveId;
+    var pointId;
+    var arrtitle = [];
+    var xdata = [];
+    var ydata = [
+        {
+            name: '',
+            type: 'line',
+            stack: '总量',
+            data: []
+        }];
+    var now;
+    var myChart = echarts.init(document.getElementById('chart'));
+    option = {
+        title: {
+            text: "曲线"
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['123']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: xdata
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: ydata
+    };
+    // 初次加载图表(无数据)
+    myChart.setOption(option);
+
+    //赋值
+    function randomData() {
+        $.ajax({
+            url: "/system/realTime/list",
+            type: "GET",
+            dataType: "json",
+            cache: false,
+            async: false,
+            ContentType: "application/json",
+            data: {
+                devId: devId,
+                slaveId: slaveId,
+                pointId: pointId,
+            },
+            success: function (data) {
+                var result = data;
+                arrtitle = result.arrtitle;
+                console.log('arrtitle: ' + arrtitle);
+                var res = result.yDatas;
+                now = new Date();
+                if (xdata.length >= 10) {
+                    xdata.shift();
+                }
+                arr = result.arr;
+                var hour = now.getHours();
+                var min = now.getMinutes();
+                var sec = now.getSeconds();
+                hour = hour > 9 ? hour : "0" + hour;
+                min = min > 9 ? min : "0" + min;
+                sec = sec > 9 ? sec : "0" + sec;
+                xdata.push(hour + ":" + min + ":" + sec);
+                if (ydata[0].data.length >= 10) {
+                    ydata[0].data.shift();
+                }
+                ydata[0].name = res.name;
+                ydata[0].data.push(res.data);
+            },
+            error: function (msg) {
+
+            }
+        });
+    }
+
+    //这里做定时器，用setInterval可以实现定时循环刷新
+    timer = setInterval(function () {
+        randomData();
+        //这里是前面html页面中的'chart'
+        var myChart = echarts.init(document.getElementById('chart'));
+        //传入前面xdata,ydata的赋值
+        myChart.setOption({
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: xdata
+                }
+            ],
+            legend: {
+                data: arrtitle
+            },
+            series: ydata
+        });
+    }, 1000 * 10);//60秒钟一刷新
+
+    function changeDev() {
+        $("#slaveName option:gt(0)").remove();
+        $("#pointName option:gt(0)").remove();
+        devId = document.getElementById("devName").value;
+        var slaves = [[${slaves}]];
+        $.each(slaves, function (index, item) {
+            var id = item.id;
+            var name = item.slaveName;
+            if (devId == item.devId)
+                $("#slaveName").append("<option value='" + id + "'>" + name + "</option>")
+
+        })
+    }
+
+    function changeSlave() {
+        $("#pointName option:gt(0)").remove();
+        slaveId = document.getElementById("slaveName").value;
+        var points = [[${points}]];
+        $.each(points, function (index, item) {
+            var id = item.pointId;
+            var name = item.pointName;
+            if (slaveId == item.slaveId && devId == item.devId) {
+                console.log(slaveId);
+                $("#pointName").append("<option value='" + id + "'>" + name + "</option>")
+            }
+        });
+    }
+
+    function changePoint() {
+        pointId = document.getElementById("pointName").value;
+    }
+
+    function timerStop() {
+        console.log('关闭定时器');
+        window.clearTimeout(timer);
+    }
+</script>
+</body>
+</html>
