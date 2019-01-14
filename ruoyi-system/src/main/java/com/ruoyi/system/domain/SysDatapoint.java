@@ -11,6 +11,7 @@ public class SysDatapoint extends BaseEntity {
 
     private int id;
     private int tempId;
+    private String tempName;
     private String pointName;
     private int dataType;
     private String registerAdr;
@@ -37,6 +38,14 @@ public class SysDatapoint extends BaseEntity {
 
     public void setTempId(int tempId) {
         this.tempId = tempId;
+    }
+
+    public String getTempName() {
+        return tempName;
+    }
+
+    public void setTempName(String tempName) {
+        this.tempName = tempName;
     }
 
     public String getPointName() {

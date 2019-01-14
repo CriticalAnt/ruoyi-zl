@@ -1,6 +1,6 @@
 package com.ruoyi.server.task;
 
-import com.ruoyi.server.common.Constant2;
+import com.ruoyi.server.common.ConstantState;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,13 +20,13 @@ public class ScheduledActive {
     @Scheduled(cron = "0/10 * * * * *")
     public void checkChannelHandlerContext() {
         Map<ChannelHandlerContext, Date> map = new HashMap<>();
-        synchronized (Constant2.ctxHeartTime) {
-            for (Map.Entry<ChannelHandlerContext, Date> entry : Constant2.ctxHeartTime.entrySet()) {
+        synchronized (ConstantState.ctxHeartTime) {
+            for (Map.Entry<ChannelHandlerContext, Date> entry : ConstantState.ctxHeartTime.entrySet()) {
                 map.put(entry.getKey(), entry.getValue());
             }
         }
         for (Map.Entry<ChannelHandlerContext, Date> entry : map.entrySet()) {
-            if (new Date().getTime() - entry.getValue().getTime() > 30 * 1000) {
+            if (new Date().getTime() - entry.getValue().getTime() > 3000 * 1000) {
                 entry.getKey().close();
             }
         }

@@ -31,7 +31,7 @@ public class SysJobServiceImpl implements ISysJobService
     /**
      * 项目启动时，初始化定时器
      */
-    @PostConstruct
+//    @PostConstruct
     public void init()
     {
         List<SysJob> jobList = jobMapper.selectJobAll();

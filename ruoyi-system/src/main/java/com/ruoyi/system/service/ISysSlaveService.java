@@ -22,4 +22,6 @@ public interface ISysSlaveService {
     int deleteByIds(String ids);
 
     int update(SysSlave slave);
+
+    List<SysSlave> selectByIds(String ids);
 }

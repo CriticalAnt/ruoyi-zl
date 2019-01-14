@@ -10,7 +10,7 @@
         <div class="col-sm-12 search-collapse">
             <form id="role-form">
                 <input id="id" name="id" type="hidden" th:value="${id}"/>
-                <div class="select-list">
+                <!--<div class="select-list">-->
                     <!--<ul>
                         <li>
                             模板名称：<input type="text" name="roleName"/>
@@ -40,7 +40,7 @@
                                     class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
                     </ul>-->
-                </div>
+                <!--</div>-->
             </form>
         </div>
 
@@ -70,6 +70,7 @@
 <script th:inline="javascript">
     var addFlag = [[${@permission.hasPermi('system:templet:add')}]];
     var editFlag = [[${@permission.hasPermi('system:templet:edit')}]];
+    var addTempFlag = [[${@permission.hasPermi('system:templet:addTemp')}]];
     var removeFlag = [[${@permission.hasPermi('system:templet:remove')}]];
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/dic";
@@ -103,6 +104,11 @@
                     sortable: true
                 },
                 {
+                    field: 'tempName',
+                    title: '模板名称',
+//                    sortable: true
+                },
+                {
                     field: 'pointName',
                     title: '数据点名称',
                     sortable: true
@@ -115,7 +121,7 @@
                 {
                     field: 'registerAdr',
                     title: '寄存器地址',
-                    // sortable: true
+                     sortable: true
                 },
                 {
                     field: 'valueType',
@@ -158,6 +164,7 @@
                     formatter: function (value, row, index) {
                         var actions = [];
 //                        actions.push('<a class="btn btn-success btn-xs ' + addFlag + '" href="#" onclick="$.operate.addFullTitle(\'' + '数据点' + '\',\'' + row.id + '\')"><i class="fa fa-edit"></i>添加数据点</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + addTempFlag + '" href="#" onclick="bindTemp(\'' + row.id + '\')"><i class="fa fa-check-square-o"></i>反向绑定</a> ');
                         actions.push('<a class="btn btn-primary btn-xs ' + editFlag + '" href="#" onclick="data(\'' + row.id + '\')"><i class="fa fa-check-square-o"></i>编辑</a> ');
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
                         return actions.join('');
@@ -170,6 +177,11 @@
     /*角色管理-分配数据权限*/
     function data(id) {
         var url = viewDic + '/edit/' + id;
+        $.modal.open("修改数据点", url);
+    }
+
+    function bindTemp(id) {
+        var url = viewDic + '/addTemp/' + id;
         $.modal.open("修改数据点", url);
     }
 

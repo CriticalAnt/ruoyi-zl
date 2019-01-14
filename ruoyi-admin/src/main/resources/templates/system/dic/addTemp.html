@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<link th:href="@{/ajax/libs/jquery-ztree/3.5/css/metro/zTreeStyle.css}" rel="stylesheet"/>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-role-edit" th:object="${datapoint}">
+        <!--<input id="id" name="id" type="hidden" th:field="*{id}"/>-->
+        <input id="templets" name="templets" type="hidden" th:object="${templets}"/>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label">绑定模板：</label>
+            <div class="col-sm-8">
+                <select id="tempId" name="tempId" class="selectpicker" multiple>
+                    <!--class="form-control m-b" multiple>-->
+                    <!--<option value="0" th:field="*{dataType}">数值型</option>-->
+                    <!--<option th:value="${template.id}" th:field="${template.modelName}"></option>-->
+                    <option th:each="templet : ${templets}" th:text="${templet.modelName}"
+                            th:value="${templet.id}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">数据点名称：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="pointName" id="pointName" th:field="*{pointName}"/>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label">数据类型：</label>
+            <div class="col-sm-8">
+                <select id="dataType" name="dataType" class="form-control m-b">
+                    <option value="0" th:field="*{dataType}">数值型</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label">寄存器地址：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="registerAdr" id="registerAdr"
+                       th:field="*{registerAdr}">
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label">值类型：</label>
+            <div class="col-sm-8">
+                <select id="valueType" name="valueType" class="form-control m-b">
+                    <option value="0" th:field="*{valueType}">2字节无符号整数</option>
+                    <option value="1" th:field="*{valueType}">2字节有符号整数</option>
+                    <option value="2" th:field="*{valueType}">4字节无符号整数(AB CD)</option>
+                    <option value="3" th:field="*{valueType}">4字节无符号整数(CD AB)</option>
+                    <option value="4" th:field="*{valueType}">4字节有符号整数(AB CD)</option>
+                    <option value="5" th:field="*{valueType}">4字节有符号整数(CD AB)</option>
+                    <option value="6" th:field="*{valueType}">4字节浮点型(AB CD)</option>
+                    <option value="7" th:field="*{valueType}">4字节浮点型(CD AB)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">小数位数：</label>
+            <div class="col-sm-8">
+                <select id="decimalLen" name="decimalLen" class="form-control m-b">
+                    <option value="0" th:field="*{decimalLen}">0(小数位数)</option>
+                    <option value="1" th:field="*{decimalLen}">1(小数位数)</option>
+                    <option value="2" th:field="*{decimalLen}">2(小数位数)</option>
+                    <option value="3" th:field="*{decimalLen}">3(小数位数)</option>
+                    <option value="4" th:field="*{decimalLen}">4(小数位数)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">读写：</label>
+            <div class="col-sm-8">
+                <select id="readType" name="readType" class="form-control m-b">
+                    <option value="0" th:field="*{readType}">只读</option>
+                    <option value="1" th:field="*{readType}">读写</option>
+                    <option value="2" th:field="*{readType}">只写</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label">寄存器长度：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="registerLen" id="registerLen"
+                       th:field="*{registerLen}">
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">单位：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="unit" id="unit"
+                       th:field="*{unit}">
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">公式：</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="formula" id="formula"
+                       th:field="*{formula}">
+            </div>
+        </div>
+        <div class="form-groups">
+            <label class="col-sm-3 control-label ">读写：</label>
+            <div class="col-sm-8">
+                <select id="storageType" name="storageType" readType="form-control m-b">
+                    <option value="0" th:field="*{storageType}">不存储</option>
+                    <option value="1" th:field="*{storageType}">存储</option>
+                    <option value="2" th:field="*{storageType}">变化时存储</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div th:include="include::footer"></div>
+<script th:src="@{/ajax/libs/jquery-ztree/3.5/js/jquery.ztree.all-3.5.js}"></script>
+<script type="text/javascript">
+
+    function edit() {
+        var id = $("input[name='id']").val();
+        var pointName = $("input[name='pointName']").val();
+        var tempId = $("#tempId").val();
+        var dataType = $("#dataType").val();
+        var registerAdr = $("input[name='registerAdr']").val();
+        var valueType = $("#valueType").val();
+        var decimalLen = $("#decimalLen").val();
+        var readType = $("#readType").val();
+        var registerLen = $("input[name='registerLen']").val();
+        var unit = $("input[name='unit']").val();
+        var formula = $("input[name='formula']").val();
+        var storageType = $("#storageType").val();
+        var tempIds = tempId.toString();
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: ctx + "system/dic/add/list",
+            data: {
+                "tempIds": tempIds,
+                "pointName": pointName,
+                "dataType": dataType,
+//                "tempId": tempId,
+                "registerAdr": registerAdr,
+                "valueType": valueType,
+                "decimalLen": decimalLen,
+                "readType": readType,
+                "registerLen": registerLen,
+                "unit": unit,
+                "formula": formula,
+                "storageType": storageType
+            },
+            async: false,
+            error: function (request) {
+                $.modal.alertError("系统错误");
+            },
+            success: function (data) {
+                $.operate.saveSuccess(data);
+            }
+        });
+    }
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            edit();
+        }
+    }
+</script>
+</body>
+</html>

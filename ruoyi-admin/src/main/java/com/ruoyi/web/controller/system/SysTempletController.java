@@ -35,13 +35,13 @@ public class SysTempletController extends BaseController {
 
     private String prefix = "system/templet";
 
-    @RequiresPermissions("system:templet:view")
+//    @RequiresPermissions("system:templet:view")
     @GetMapping()
     public String templet() {
         return prefix + "/templet";
     }
 
-    @RequiresPermissions("system:templet:list")
+//    @RequiresPermissions("system:templet:list")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SysTemplet data) {
@@ -53,7 +53,7 @@ public class SysTempletController extends BaseController {
         return getDataTable(list);
     }
 
-    @RequiresPermissions("system:templet:findAll")
+//    @RequiresPermissions("system:templet:findAll")
     @PostMapping("/findAll")
     @ResponseBody
     public List<SysTemplet> findAll(SysTemplet data) {

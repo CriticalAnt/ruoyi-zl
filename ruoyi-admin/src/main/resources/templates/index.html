@@ -22,6 +22,7 @@
         }
     </style>
 </head>
+<!--<head th:include="include :: header"></head>-->
 <body class="fixed-sidebar full-height-layout gray-bg" style="overflow: hidden"
       th:classappend="${@config.getKey('sys.index.skinName')}">
 <div id="wrapper">
@@ -100,6 +101,8 @@
                     <li>
                         <span class="m-r-sm text-muted">欢迎来到监测管理后台.</span>
                     </li>
+                    <li shiro:hasPermission="system:register:add" onclick="register()"><a id="register"><i
+                            class="fa fa-user"></i>注册</a></li>
                     <li><a id="fullScreen"><i class="fa fa-arrows-alt"></i>全屏</a></li>
                     <li><a th:href="@{logout}"><i class="fa fa-sign-out"></i>退出</a></li>
                 </ul>
@@ -139,6 +142,7 @@
     </div>
     <!--右侧部分结束-->
 </div>
+<!--<div th:include="include :: footer"></div>-->
 <!-- 全局js -->
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.min.js}"></script>
@@ -149,5 +153,14 @@
 <script th:src="@{/ruoyi/js/ry-ui.js?v=3.0.0}"></script>
 <script th:src="@{/ruoyi/index.js}"></script>
 <script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script>
+    function register() {
+//        $.operate.register()
+        var url = "system/user/add";
+        $.modal.open("注册用户", url);
+    }
+
+</script>
 </body>
 </html>

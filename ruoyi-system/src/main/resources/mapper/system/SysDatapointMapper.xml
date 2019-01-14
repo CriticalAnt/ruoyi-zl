@@ -6,19 +6,21 @@
 
     <sql id="selectDatapoint">
         SELECT
-            id AS "id",
-            temp_id AS "tempId",
-            point_name AS "pointName",
-            data_type AS "dataType",
-            read_type AS "readType",
-            register_adr AS "registerAdr",
-            value_type AS "valueType",
-            decimal_len AS "decimalLen",
-            register_len AS "registerLen",
-            unit AS "unit",
-            formula AS "formula",
-            storage_type AS "storageType"
-        FROM zl_data_point
+            p.id AS "id",
+            p.temp_id AS "tempId",
+            m.model_name AS "tempName",
+            p.point_name AS "pointName",
+            p.data_type AS "dataType",
+            p.read_type AS "readType",
+            p.register_adr AS "registerAdr",
+            p.value_type AS "valueType",
+            p.decimal_len AS "decimalLen",
+            p.register_len AS "registerLen",
+            p.unit AS "unit",
+            p.formula AS "formula",
+            p.storage_type AS "storageType"
+        FROM zl_data_point p
+        LEFT JOIN zl_data_model m ON p.temp_id = m.id
     </sql>
 
     <insert id="insert" parameterType="SysDatapoint">
@@ -64,13 +66,13 @@
     <select id="selectByTempId" resultType="SysDatapoint">
 
         <include refid="selectDatapoint"/>
-        WHERE del_flag = 0 AND temp_id = #{tempId}
+        WHERE p.del_flag = 0 AND p.temp_id = #{tempId}
     </select>
 
     <select id="findAll" resultType="SysDatapoint">
 
         <include refid="selectDatapoint"/>
-        WHERE del_flag = 0
+        WHERE p.del_flag = 0
 
     </select>
 
@@ -88,7 +90,7 @@
 
     <select id="selectById" resultType="SysDatapoint" parameterType="Long">
         <include refid="selectDatapoint"/>
-        WHERE del_flag = 0 AND id = #{dicId}
+        WHERE p.del_flag = 0 AND p.id = #{dicId}
     </select>
 
     <update id="update" parameterType="SysDatapoint">
@@ -106,4 +108,11 @@
         WHERE del_flag = 0 AND id = #{id}
     </update>
 
+    <select id="selectByIds" resultType="SysDatapoint">
+        <include refid="selectDatapoint"/>
+    WHERE p.del_flag = 0 AND p.id in
+    <foreach collection="array" item="ids" open="(" separator="," close=")">
+        #{ids}
+    </foreach>
+    </select>
 </mapper>

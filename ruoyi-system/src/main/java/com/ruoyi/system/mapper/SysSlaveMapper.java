@@ -25,4 +25,5 @@ public interface SysSlaveMapper {
 
     List<SysSlave> findAll();
 
+    List<SysSlave> selectByIds(Long[] slaveIds);
 }

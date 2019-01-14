@@ -13,22 +13,24 @@
                     <ul>
                         <li>
                             设备名称：
-                            <select id="devName" name="devName" onchange="changeDev()">
-                                <option selected="selected" value="-1">请选择</option>
+                            <select id="devName" name="devName" class="selectpicker" onchange="changeDev()">
+                                <!--<option selected="selected" value="-1">请选择</option>-->
                                 <option th:each="device:${devices}" th:value="${device.id}" th:text="${device.devName}">
                                 </option>
                             </select>
                         </li>
                         <li>
                             从机名称：
-                            <select id="slaveName" name="slaveName" th:value="${slaves}" onchange="changeSlave()">
-                                <option value="-1">请选择</option>
+                            <select id="slaveName" name="slaveName" class="selectpicker" multiple th:value="${slaves}"
+                                    onchange="changeSlave()">
+                                <!--<option value="-1">请选择</option>-->
                             </select>
                         </li>
                         <li>
                             数据点名称：
-                            <select id="pointName" name="pointName" onchange="changePoint()">
-                                <option value="-1">请选择</option>
+                            <select id="pointName" name="pointName" class="selectpicker" multiple
+                                    onchange="changePoint()">
+                                <!--<option value="-1">请选择</option>-->
                             </select>
                         </li>
                         <li>
@@ -49,22 +51,47 @@
 
 <div th:include="include :: footer"></div>
 <script th:inline="javascript">
+
+    function init() {
+        $("#devName").selectpicker({
+            noneSelectedText: '请选择',
+            dropdownAlignRight: 'auto',
+            width: 'auto',
+        });
+        $("#slaveName").selectpicker({
+            noneSelectedText: '请选择',
+            dropdownAlignRight: 'auto',
+            width: 'auto',
+            actionsBox: true,
+            liveSearch: true,
+        });
+        $("#pointName").selectpicker({
+            noneSelectedText: '请选择',
+            dropdownAlignRight: 'auto',
+            width: 'auto',
+            actionsBox: true,
+            liveSearch: true,
+        });
+        changeDev();
+        changeSlave()
+    };
+    init();
+
     var timer;
     var devId;
     var slaveId;
     var pointId;
     var arrtitle = [];
     var xdata = [];
-    var ydata = [
-        {
-            name: '',
-            type: 'line',
-            stack: '总量',
-            data: []
-        }];
+    var series = [{
+        name: '',
+        data: [],
+        type: 'line'
+    }];
+    var changed = true;
     var now;
     var myChart = echarts.init(document.getElementById('chart'));
-    option = {
+    var option = {
         title: {
             text: "曲线"
         },
@@ -93,13 +120,18 @@
         yAxis: {
             type: 'value'
         },
-        series: ydata
+        series: []
     };
     // 初次加载图表(无数据)
     myChart.setOption(option);
 
     //赋值
     function randomData() {
+        var devId = document.getElementById("devName").value;
+        var slaveId = $("#slaveName").val();
+        var pointId = $("#pointName").val();
+        var ids = pointId == null ? '' : pointId.toString();
+        var sIds = slaveId == null ? '' : slaveId.toString();
         $.ajax({
             url: "/system/realTime/list",
             type: "GET",
@@ -109,31 +141,45 @@
             ContentType: "application/json",
             data: {
                 devId: devId,
-                slaveId: slaveId,
-                pointId: pointId,
+                slaveIds: sIds,
+                pointIds: ids,
             },
             success: function (data) {
                 var result = data;
-                arrtitle = result.arrtitle;
-                console.log('arrtitle: ' + arrtitle);
-                var res = result.yDatas;
+//                arrtitle = result.arrtitle;
+                var res = result.series;
                 now = new Date();
                 if (xdata.length >= 10) {
                     xdata.shift();
                 }
-                arr = result.arr;
+//                arr = result.arr;
                 var hour = now.getHours();
                 var min = now.getMinutes();
                 var sec = now.getSeconds();
                 hour = hour > 9 ? hour : "0" + hour;
                 min = min > 9 ? min : "0" + min;
                 sec = sec > 9 ? sec : "0" + sec;
-                xdata.push(hour + ":" + min + ":" + sec);
-                if (ydata[0].data.length >= 10) {
-                    ydata[0].data.shift();
+//                if (series[0].data.length >= 10) {
+//                    series[0].data.shift();
+//                }
+//                series[0].name = res.name;
+//                series[0].data.push(res.data);
+//                console.log(series)
+                if (changed) {
+                    xdata = [];
+                    series = res;
+                    changed = false;
+                } else {
+                    for (var i = 0, len = res.length; i < len; i++) {
+                        if (series[i].data.length >= 10) {
+                            series[i].data.shift();
+                        }
+                        series[i].name = res[i].name;
+                        series[i].type = res[i].type;
+                        series[i].data.push(res[i].data[0]);
+                    }
                 }
-                ydata[0].name = res.name;
-                ydata[0].data.push(res.data);
+                xdata.push(hour + ":" + min + ":" + sec);
             },
             error: function (msg) {
 
@@ -147,51 +193,74 @@
         //这里是前面html页面中的'chart'
         var myChart = echarts.init(document.getElementById('chart'));
         //传入前面xdata,ydata的赋值
-        myChart.setOption({
-            xAxis: [
-                {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: xdata
-                }
-            ],
-            legend: {
-                data: arrtitle
-            },
-            series: ydata
-        });
+        option.xAxis.data = xdata;
+        option.series = series;
+        myChart.setOption(option, true);
     }, 1000 * 10);//60秒钟一刷新
 
     function changeDev() {
-        $("#slaveName option:gt(0)").remove();
-        $("#pointName option:gt(0)").remove();
-        devId = document.getElementById("devName").value;
+        document.getElementById("slaveName").options.length = 0;
+        document.getElementById("pointName").options.length = 0;
+        var devId = document.getElementById("devName").value;
         var slaves = [[${slaves}]];
+        changed = true;
+        series = [{
+            name: '',
+            data: [],
+            type: 'line'
+        }];
         $.each(slaves, function (index, item) {
             var id = item.id;
             var name = item.slaveName;
             if (devId == item.devId)
                 $("#slaveName").append("<option value='" + id + "'>" + name + "</option>")
+            $('.selectpicker').selectpicker('refresh');
 
         })
     }
 
     function changeSlave() {
-        $("#pointName option:gt(0)").remove();
-        slaveId = document.getElementById("slaveName").value;
+        document.getElementById("pointName").options.length = 0;
+//        var slaveId = document.getElementById("slaveName").value;
+        var slaveId = $("#slaveName").val();
+        var devId = document.getElementById("devName").value;
         var points = [[${points}]];
-        $.each(points, function (index, item) {
-            var id = item.pointId;
-            var name = item.pointName;
-            if (slaveId == item.slaveId && devId == item.devId) {
-                console.log(slaveId);
-                $("#pointName").append("<option value='" + id + "'>" + name + "</option>")
+        var slaves = [[${slaves}]];
+        if (slaveId == null)
+            slaveId = [];
+        series = [{
+            name: '',
+            data: [],
+            type: 'line'
+        }];
+        changed = true;
+        $.each(slaves, function (index, slave) {
+            if (slaveId.indexOf(slave.id.toString()) > -1) {
+                console.log(slave.id);
+                var str = '';
+                str += "<optgroup  label='" + slave.slaveName + "'>";
+                $.each(points, function (index, item) {
+                    var id = item.pointId;
+                    var name = item.pointName;
+                    if (slave.id == item.slaveId && devId == item.devId) {
+                        str += "<option value='" + id + "'>" + name + "</option>";
+                    }
+                });
+                str += "</optgroup>";
+                $("#pointName").append(str)
             }
         });
+        $('.selectpicker').selectpicker('refresh');
     }
 
     function changePoint() {
-        pointId = document.getElementById("pointName").value;
+        series = [{
+            name: '',
+            data: [],
+            type: 'line'
+        }];
+        changed = true;
+        var pointIds = $("#pointName").val();
     }
 
     function timerStop() {

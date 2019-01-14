@@ -1,6 +1,6 @@
 package com.ruoyi.server.task;
 
-import com.ruoyi.server.common.Constant2;
+import com.ruoyi.server.common.ConstantState;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.service.ISysDeviceService;
@@ -30,8 +30,8 @@ public class ScheduledSend {
         List<SysDevice> devsOnline = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
         Map<SysCollectionPoint, String> res = new HashMap<>();
-        synchronized (Constant2.registeredCode) {
-            for (Map.Entry<String, String> entry : Constant2.registeredCode.entrySet())
+        synchronized (ConstantState.registeredCode) {
+            for (Map.Entry<String, String> entry : ConstantState.registeredCode.entrySet())
                 map.put(entry.getKey(), entry.getValue());
         }
         for (SysDevice device : devices) {

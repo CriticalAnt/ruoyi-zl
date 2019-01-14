@@ -3,9 +3,12 @@ package com.ruoyi.web.controller.system;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.base.AjaxResult;
 import com.ruoyi.common.enums.*;
+import com.ruoyi.common.support.Convert;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.system.domain.SysDatapoint;
+import com.ruoyi.system.domain.SysTemplet;
 import com.ruoyi.system.service.ISysDatapointService;
+import com.ruoyi.system.service.ISysTempletService;
 import com.ruoyi.web.core.base.BaseController;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: wtao
@@ -32,13 +32,16 @@ public class SysDicController extends BaseController {
     @Autowired
     private ISysDatapointService datapointService;
 
-    @RequiresPermissions("system:dic:view")
+    @Autowired
+    ISysTempletService templetService;
+
+    //    @RequiresPermissions("system:dic:view")
     @GetMapping()
     public String dic() {
         return prefix + "/dic";
     }
 
-    @RequiresPermissions("system:dic:list")
+    //    @RequiresPermissions("system:dic:list")
     @GetMapping("/list/{id}")
     public String dicList(@PathVariable("id") Long id, ModelMap mmap) {
         mmap.put("id", id);
@@ -46,7 +49,7 @@ public class SysDicController extends BaseController {
     }
 
 
-    @RequiresPermissions("system:dic:list")
+    //    @RequiresPermissions("system:dic:list")
     @PostMapping("/list/{id}")
     @ResponseBody
     public TableDataInfo list(@PathVariable("id") int id, SysDatapoint data) {
@@ -63,6 +66,7 @@ public class SysDicController extends BaseController {
             Map<String, String> map = new HashMap<>();
             map.put("id", String.valueOf(point.getId()));
             map.put("tempId", String.valueOf(point.getTempId()));
+            map.put("tempName", point.getTempName());
             map.put("pointName", point.getPointName());
             map.put("dataType", DataType.getDescByCode(point.getDataType()));
             map.put("registerAdr", point.getRegisterAdr());
@@ -84,13 +88,18 @@ public class SysDicController extends BaseController {
     @ResponseBody
     public AjaxResult remove(String ids) {
         int num;
+        List<SysDatapoint> points = datapointService.selectByIds(ids);
+        Set<Integer> set = new HashSet<>();
         try {
             num = datapointService.deleteDatapointByIds(ids);
         } catch (Exception e) {
             return error(e.getMessage());
         }
-        if (num > 0)
-            updatePoints();
+        if (num > 0) {
+            for (SysDatapoint point : points)
+                set.add(point.getTempId());
+            updatePointsByTempId(set);
+        }
         return toAjax(num);
     }
 
@@ -101,12 +110,45 @@ public class SysDicController extends BaseController {
         return prefix + "/edit";
     }
 
+    @GetMapping("/addTemp/{dicId}")
+    public String addTemp(@PathVariable("dicId") Long dicId, ModelMap mmap) {
+        List<SysTemplet> templets = templetService.selectTempletList(null);
+        SysDatapoint datapoint = datapointService.selectById(dicId);
+        mmap.put("datapoint", datapoint);
+        mmap.put("templets", templets);
+        return prefix + "/addTemp";
+    }
+
+    @RequiresPermissions("system:dic:add")
+    @PostMapping("/add")
+    @ResponseBody
+    public AjaxResult add(SysDatapoint datapoint) {
+        int num = datapointService.insert(datapoint);
+        return toAjax(num);
+    }
+
+    @RequiresPermissions("system:dic:add")
+    @PostMapping("/add/list")
+    @ResponseBody
+    public AjaxResult addList(SysDatapoint datapoint, String tempIds) {
+        Integer[] ids = Convert.toIntArray(tempIds);
+        int num = 0;
+        for (int id : ids) {
+            datapoint.setTempId(id);
+            num = datapointService.insert(datapoint);
+        }
+        return toAjax(num);
+    }
+
+    @RequiresPermissions("system:dic:edit")
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult edit(SysDatapoint datapoint) {
+        Set<Integer> set = new HashSet<>();
+        set.add(datapoint.getTempId());
         int num = datapointService.update(datapoint);
         if (num > 0)
-            updatePoints();
+            updatePointsByTempId(set);
         return toAjax(num);
     }
 }

@@ -1,6 +1,7 @@
 package com.ruoyi.server;
 
-import com.ruoyi.server.common.Constant2;
+import com.ruoyi.server.common.ConstantState;
+import com.ruoyi.server.domain.ResolveRecord;
 import com.ruoyi.server.utils.UtilsCRC;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,94 +31,109 @@ public class ReceiveService {
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void receive(byte[] req, ChannelHandlerContext ctx) {
-        int index;
-        List<SysCollectionPoint> points;
-        SysCollectionPoint point;
-        synchronized (Constant2.ctxIndex) {
-            index = Constant2.ctxIndex.get(ctx);
+    public void receive2(byte[] req, ChannelHandlerContext ctx) {
+        Map<String, ResolveRecord> records;
+        synchronized (ConstantState.ctxRecord) {
+            records = ConstantState.ctxRecord.get(ctx);
         }
-        synchronized (Constant2.ctxPoints) {
-            points = Constant2.ctxPoints.get(ctx);
-        }
-        //当前处理的数据点
-        point = points.get(index);
-        if (req.length < 3)
-            return;
+
         //数据解析
         int equNum = req[0] & 0xFF;
         int funCode = req[1] & 0xFF;
         int len = req[2] & 0xFF;
-        byte[] data = new byte[len];
-        int valueType = point.getValueType();
+        byte[] datas = new byte[len];
+        if (len + 5 != req.length) {
+            System.out.println(218 + ":长度错误");
+            return;
+        }
         //校验
-        if (equNum != point.getEquNum()) {
-            return;
-        }
         if (funCode != 3 && funCode != 4) {
+            System.out.println(223 + ":功能码错误");
             return;
-        }
-        if (valueType == 0 || valueType == 1) {
-            if (len != 2) {
-                return;
-            }
-        } else {
-            if (len != 4) {
-                return;
-            }
         }
         //CRC
-        if (!isCRC(req))
+        if (!UtilsCRC.isCRC(req)) {
+            System.out.println(228 + ":CRC错误");
             return;
+        }
         try {
-            System.arraycopy(req, 3, data, 0, len);
+            System.arraycopy(req, 3, datas, 0, len);
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
-        for (byte b : req) {
-            System.out.print(String.valueOf(b & 0xFF) + " ");
-        }
-        System.out.println();
-        //数据解析、运算
-        long v;
-        float f;
-        double temp;
-        String formula = point.getFormula();
-        JEP jep = new JEP();
-        if (valueType == 6 || valueType == 7) {
-            f = getFloat(data, valueType, point.getDecimalLen());
-            jep.addVariable("x", f);
-        } else {
-            v = getInteger(data, point.getValueType());
-            jep.addVariable("x", v);
-        }
-        jep.parseExpression(formula);
-        temp = jep.getValue();
-        //小数位数和单位
-        int decimalLen = point.getDecimalLen();
-        DecimalFormat df;
-        if (decimalLen != 0) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < decimalLen; i++) {
-                sb.append("0");
+        String key = equNum + "-" + funCode;
+        ResolveRecord record = records.get(key);
+        int reader = record.getReader();
+        List<SysCollectionPoint> points = record.getPoints();
+        int startAdr = record.getReaderAdr();
+        try {
+            for (int i = 0; i < points.size(); i++) {
+                if (i < reader) {
+                    continue;
+                }
+                SysCollectionPoint point = points.get(i);
+                int adr = Integer.valueOf(point.getRegisterAdr()) % 10000 - 1;
+                System.out.println("地址: " + adr);
+                int valueType = point.getValueType();
+                int length = valueType == 0 ? 1 : valueType == 1 ? 1 : 2;
+                length *= 2;
+                byte[] data = new byte[length];
+                int index = (adr - startAdr) * 2;
+                if (index >= len) {
+                    record.setReaderAdr(startAdr + len / 2);
+                    System.out.println("readerAdr:" + record.getReaderAdr());
+                    System.out.println("超出返回数据长度");
+                    break;
+                }
+                record.setReaderAdr(0);
+                System.arraycopy(datas, index, data, 0, length);
+                long v;
+                float f;
+                double temp;
+                String formula = point.getFormula();
+                JEP jep = new JEP();
+                if (valueType == 6 || valueType == 7) {
+                    f = getFloat(data, valueType, point.getDecimalLen());
+                    jep.addVariable("x", f);
+                } else {
+                    v = getInteger(data, valueType);
+                    jep.addVariable("x", v);
+                }
+                jep.parseExpression(formula);
+                temp = jep.getValue();
+                //小数位数和单位
+                int decimalLen = point.getDecimalLen();
+                DecimalFormat df;
+                if (decimalLen != 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j < decimalLen; j++) {
+                        sb.append("0");
+                    }
+                    String format = sb.toString();
+                    df = new DecimalFormat("0." + format);
+                } else {
+                    df = new DecimalFormat("0");
+                }
+                //时间精度为分钟
+                Date date = new Date();
+                date = new Date(date.getTime() / (60 * 1000) * (60 * 1000));
+                String res = df.format(temp);
+                point.setValue(res);
+                point.setUpdateTime(date);
+                point.setId(null);
+                points.set(i, point);
+                res += point.getUnit();
+                executorService.execute(() -> mongoTemplate.insert(point));
+                System.out.println("result: " + res);
+                reader++;
             }
-            String format = sb.toString();
-            df = new DecimalFormat("#." + format);
-        } else {
-            df = new DecimalFormat("#");
+            synchronized (ConstantState.ctxRecord) {
+                ConstantState.ctxRecord.get(ctx).get(key).setReader(reader);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        String res = df.format(temp);
-        point.setValue(res);
-        point.setUpdateTime(new Date());
-        point.setId(null);
-        points.set(index, point);
-        res += point.getUnit();
-        synchronized (Constant2.ctxPoints) {
-            Constant2.ctxPoints.put(ctx, points);
-        }
-        executorService.execute(() -> mongoTemplate.insert(point));
-        System.out.println("result: " + res);
     }
 
     private float getFloat(byte[] data, int valueType, int decimalLen) {
@@ -185,14 +202,4 @@ public class ReceiveService {
         return value;
     }
 
-    private boolean isCRC(byte[] req) {
-        byte[] temp = new byte[req.length - 2];
-        System.arraycopy(req, 0, temp, 0, temp.length);
-        int crc = UtilsCRC.getCRC(temp);
-        if (req[req.length - 2] == (byte) (crc & 0xFF)
-                && req[req.length - 1] == (byte) ((crc >> 8) & 0xFF)) {
-            return true;
-        }
-        return false;
-    }
 }

@@ -476,6 +476,11 @@
                 var url = $.common.isEmpty(id) ? $.table._option.createUrl : $.table._option.createUrl.replace("{id}", id);
                 $.modal.open("添加" + $.table._option.modalName, url);
             },
+            // 注册用户
+            register: function () {
+                var url = "system/templet";
+                $.modal.open("添加用户", url);
+            },
             // 修改信息
             edit: function (id) {
                 var url = "/404.html";

@@ -1,22 +1,24 @@
 package com.ruoyi.web.controller.system;
 
+import com.google.common.collect.Sets;
 import com.ruoyi.framework.web.page.TableDataInfo;
-import com.ruoyi.server.common.Constant2;
+import com.ruoyi.server.common.ConstantState;
+import com.ruoyi.server.domain.ResolveRecord;
+import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.system.domain.SysDevice;
+import com.ruoyi.system.mapper.SysCollectionPointMapper;
 import com.ruoyi.system.service.ISysDeviceService;
 import com.ruoyi.web.core.base.BaseController;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: wtao
@@ -32,9 +34,41 @@ public class SysMonitorController extends BaseController {
     @Autowired
     ISysDeviceService deviceService;
 
-    @RequiresPermissions("system:monitor:view")
+    @Autowired
+    SysCollectionPointMapper pointMapper;
+
+    //    @RequiresPermissions("system:monitor:view")
     @GetMapping()
-    public String dic() {
+    public String dic(ModelMap modelMap) {
+        List<SysDevice> devs = deviceService.findAll();
+        List<SysCollectionPoint> points = pointMapper.findAll();
+//        List<SysCollectionPoint> res = new ArrayList<>();
+        Set<SysCollectionPoint> resSet = Sets.newHashSet();
+        Map<ChannelHandlerContext, Map<String, ResolveRecord>> ps = new HashMap<>();
+        synchronized (ConstantState.ctxRecord) {
+            for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ConstantState.ctxRecord.entrySet())
+                ps.put(entry.getKey(), entry.getValue());
+        }
+        for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ps.entrySet()) {
+            for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
+                for (SysCollectionPoint point : pEntry.getValue().getPoints()) {
+                    for (SysCollectionPoint p : points) {
+                        if (p.getPointId() == point.getPointId()
+                                && p.getSlaveId() == point.getSlaveId()
+                                && p.getDevId() == point.getDevId()) {
+                            try {
+                                resSet.remove(p);
+                            } catch (Exception e) {
+                            }
+                            p = point;
+                            resSet.add(p);
+                        }
+                    }
+                }
+            }
+        }
+        modelMap.put("devs", devs);
+        modelMap.put("points", resSet);
         return prefix + "/monitor";
     }
 
@@ -45,7 +79,7 @@ public class SysMonitorController extends BaseController {
         List<Map<String, String>> mapList = new ArrayList<>();
         List<SysDevice> devices = deviceService.findAll();
         Map<String, String> map = new HashMap<>();
-        for (Map.Entry<String, String> entry : Constant2.registeredCode.entrySet())
+        for (Map.Entry<String, String> entry : ConstantState.registeredCode.entrySet())
             map.put(entry.getKey(), entry.getValue());
         for (SysDevice device : devices) {
             Map<String, String> res = new HashMap<>();

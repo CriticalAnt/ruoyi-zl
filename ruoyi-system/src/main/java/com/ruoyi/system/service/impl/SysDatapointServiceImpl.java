@@ -79,5 +79,10 @@ public class SysDatapointServiceImpl implements ISysDatapointService {
         return datapointMapper.update(datapoint);
     }
 
+    @Override
+    public List<SysDatapoint> selectByIds(String ids) {
+        Long[] pointId = Convert.toLongArray(ids);
+        return datapointMapper.selectByIds(pointId);
+    }
 
 }

@@ -23,6 +23,7 @@ public class SysCollectionPoint {
     private String slaveName;
     @Field("devId")
     private int devId;
+    private int tempId;
     @Field("slaveId")
     private int slaveId;
     private int equNum;
@@ -78,6 +79,14 @@ public class SysCollectionPoint {
 
     public void setDevId(int devId) {
         this.devId = devId;
+    }
+
+    public int getTempId() {
+        return tempId;
+    }
+
+    public void setTempId(int tempId) {
+        this.tempId = tempId;
     }
 
     public int getSlaveId() {

@@ -9,21 +9,22 @@ import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.framework.web.page.PageDomain;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.framework.web.page.TableSupport;
-import com.ruoyi.server.common.Constant2;
+import com.ruoyi.quartz.QuartzManager;
+import com.ruoyi.server.common.ConstantState;
+import com.ruoyi.server.domain.ResolveRecord;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.domain.SysUser;
 import com.ruoyi.system.mapper.SysCollectionPointMapper;
 import com.ruoyi.system.service.ISysDeviceService;
+import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * web层通用数据处理
@@ -38,43 +39,136 @@ public class BaseController {
     @Autowired
     SysCollectionPointMapper pointMapper;
 
+    @Autowired
+    QuartzManager quartzManager;
+
     /**
      * 更新TCP服务中的连接内容
      */
-    public void updatePoints() {
+    public void updatePointsByTempId(Set<Integer> set) {
         List<SysDevice> devices = deviceService.findAll();
         List<SysCollectionPoint> points = pointMapper.findAll();
         for (SysDevice device : devices) {
-            List<SysCollectionPoint> list = new ArrayList<>();
+            String rgsCode = device.getCode();
+            Map<String, ResolveRecord> map = new HashMap<>();
             for (SysCollectionPoint point : points) {
-                if (point.getDevId() == device.getId()) {
-                    list.add(point);
+                if (set.contains(point.getTempId()) && point.getDevId() == device.getId()) {
+                    int equNum = point.getEquNum();
+                    int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
+                    code = code == 3 ? 4 : 3;
+                    String key = equNum + "-" + code;
+                    if (!map.containsKey(key)) {
+                        ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
+                            add(point);
+                        }});
+                        map.put(key, record);
+                    } else
+                        map.get(key).getPoints().add(point);
                 }
             }
-            Constant2.codePoint.put(device.getCode(), list);
-            Constant2.ctxPoints.put(Constant2.registeredCtx.get(device.getCode())
-                    , list);
+            ConstantState.codeRecord.put(rgsCode, map);
+            ConstantState.codeCron.put(device.getCode(), device.getFrequency());
+            if (ConstantState.registeredCtx.get(rgsCode) != null) {
+                ConstantState.registeredCtx.get(rgsCode).close();
+                ConstantState.registeredCtx.remove(rgsCode);
+                ConstantState.ctxRecord.put(ConstantState.registeredCtx.get(rgsCode)
+                        , map);
+                ConstantState.registeredCode.put(rgsCode, "0");
+            }
+        }
+    }
+
+    /**
+     * 更新TCP服务中的连接内容
+     */
+    public void updatePointsByDevId(Set<Integer> set) {
+        List<SysDevice> devices = deviceService.findAll();
+        List<SysCollectionPoint> points = pointMapper.findAll();
+        for (SysDevice device : devices) {
+            String rgsCode = device.getCode();
+            Map<String, ResolveRecord> map = new HashMap<>();
+            for (SysCollectionPoint point : points) {
+                if (set.contains(device.getId()) && point.getDevId() == device.getId()) {
+                    int equNum = point.getEquNum();
+                    int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
+                    code = code == 3 ? 4 : 3;
+                    String key = equNum + "-" + code;
+                    if (!map.containsKey(key)) {
+                        ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
+                            add(point);
+                        }});
+                        map.put(key, record);
+                    } else
+                        map.get(key).getPoints().add(point);
+                }
+            }
+            ConstantState.codeRecord.put(rgsCode, map);
+            ConstantState.codeCron.put(device.getCode(), device.getFrequency());
+            if (ConstantState.registeredCtx.get(rgsCode) != null) {
+                ConstantState.registeredCtx.get(rgsCode).close();
+                ConstantState.registeredCtx.remove(rgsCode);
+                ConstantState.ctxRecord.put(ConstantState.registeredCtx.get(rgsCode)
+                        , map);
+                ConstantState.registeredCode.put(rgsCode, "0");
+            }
         }
     }
 
     /**
      * 更新设备信息
      */
-    public void updateDevice(String ids) {
+    public void removeDevice(String ids) {
         List<SysDevice> devices = deviceService.selectByIds(Convert.toLongArray(ids));
         for (SysDevice device : devices) {
             String code = device.getCode();
-            Constant2.registeredCtx.get(code).close();
-            Constant2.ctxPoints.remove(Constant2.registeredCtx.get(code));
-            Constant2.registeredCode.remove(code);
-            Constant2.registeredCtx.remove(code);
-            Constant2.codePoint.remove(code);
+            ConstantState.registeredCtx.get(code).close();
+            ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(code));
+            ConstantState.registeredCode.remove(code);
+            ConstantState.registeredCtx.remove(code);
+            ConstantState.codeRecord.remove(code);
+            ConstantState.codeCron.remove(code);
         }
+    }
+
+    public void updateDevice(SysDevice device) throws Exception {
+        String rgsCode = device.getCode();
+        ChannelHandlerContext ctx = ConstantState.registeredCtx.get(rgsCode);
+        if (ctx != null) {
+            quartzManager.updateJob(ctx.channel().remoteAddress().toString(), rgsCode, device.getFrequency());
+        }
+//        String rgsCode = device.getCode();
+//        List<SysCollectionPoint> points = pointMapper.findAll();
+//        if (ConstantState.registeredCtx.get(rgsCode) != null) {
+//            ConstantState.registeredCtx.get(rgsCode).close();
+//            ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(rgsCode));
+//            ConstantState.registeredCode.remove(rgsCode);
+//            ConstantState.registeredCtx.remove(rgsCode);
+//        }
+//        ConstantState.codeCron.remove(rgsCode);
+//        Map<String, ResolveRecord> map = new HashMap<>();
+//        for (SysCollectionPoint point : points) {
+//            if (point.getDevId() == device.getId()) {
+//                int equNum = point.getEquNum();
+//                int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
+//                code = code == 3 ? 4 : 3;
+//                String key = equNum + "-" + code;
+//                if (!map.containsKey(key)) {
+//                    ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
+//                        add(point);
+//                    }});
+//                    map.put(key, record);
+//                } else
+//                    map.get(key).getPoints().add(point);
+//            }
+//        }
+//        ConstantState.codeRecord.put(rgsCode, map);
+//        addDevice(device);
     }
 
     public void addDevice(SysDevice device) {
         String code = device.getCode();
-        Constant2.registeredCode.put(code, "0");
+        ConstantState.registeredCode.put(code, "0");
+        ConstantState.codeCron.put(code, device.getFrequency());
     }
 
 

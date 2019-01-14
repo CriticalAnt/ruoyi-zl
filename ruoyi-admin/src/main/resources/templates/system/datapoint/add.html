@@ -37,7 +37,6 @@
     var datas = [[${@dict.getType('sys_normal_disable')}]];
     var prefix = ctx + "system/datapoint";
     $(function () {
-        console.log(prefix);
         var $table = $('#bootstrap-table');
         var $add = $('#addRowbtn');
         var $remove = $('#removeBtn');
@@ -92,7 +91,6 @@
                     validate: function (v) {
                         if (!v) return '寄存器地址不能为空';
                         v = Number(v);
-                        console.log(v);
                         if (v.toString() == "NaN") return '请输入正确的地址';
                     }
                 }
@@ -145,7 +143,17 @@
                     }
                 }, {
                     field: "registerLen",
-                    title: "寄存器长度"
+                    title: "寄存器长度",
+                    editable: {
+                        type: 'text',
+                        title: '单位',
+                        mode: "inline",
+                        validate: function (v) {
+                            if (!v) return '寄存器长度不能为空';
+                            v = Number(v);
+                            if (v.toString() == "NaN") return '请输入正确的寄存器长度';
+                        }
+                    }
                 }, {
                     field: "unit",
                     title: "单位",
@@ -225,6 +233,16 @@
                 return;
             }
             for (var i = 0; i < rows.length; i++) {
+                var registerAdr = rows[i].registerAdr;
+                var registerLen = rows[i].registerLen;
+                if (Number(registerAdr).toString() == "NaN") {
+                    alert('第' + (i + 1) + '条寄存器地址错误');
+                    return;
+                }
+                if (Number(registerLen).toString() == "NaN") {
+                    alert('第' + (i + 1) + '条寄存器长度错误');
+                    return;
+                }
                 var unit = encodeURIComponent(rows[i].unit);
                 list.push({
                     'tempId': rows[i].tempId,

@@ -26,4 +26,6 @@ public interface SysDatapointMapper {
     int update(SysDatapoint datapoint);
 
     List<SysDatapoint> selectByTempId(Long tempId);
+
+    List<SysDatapoint> selectByIds(Long[] ids);
 }

@@ -50,4 +50,10 @@ public class SysSlaveServiceImple implements ISysSlaveService {
     public int update(SysSlave slave) {
         return slaveMapper.update(slave);
     }
+
+    @Override
+    public List<SysSlave> selectByIds(String ids) {
+        Long[] slaveIds = Convert.toLongArray(ids);
+        return slaveMapper.selectByIds(slaveIds);
+    }
 }

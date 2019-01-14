@@ -43,7 +43,7 @@ public class SysDeviceController extends BaseController {
     @PostMapping("remove")
     @ResponseBody
     public AjaxResult remove(String ids) {
-        updateDevice(ids);
+        removeDevice(ids);
         try {
             return toAjax(deviceService.deleteDeviceByIds(ids));
         } catch (Exception e) {
@@ -87,7 +87,9 @@ public class SysDeviceController extends BaseController {
     @ResponseBody
     public AjaxResult edit(SysDevice device) {
         try {
-            return toAjax(deviceService.update(device));
+            int num = deviceService.update(device);
+            updateDevice(deviceService.selectById(Long.valueOf(device.getId())));
+            return toAjax(num);
         } catch (Exception e) {
             return error(e.getMessage());
         }

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: wtao
@@ -41,11 +43,13 @@ public class SysDatapointController extends BaseController {
         ObjectMapper mapper = new ObjectMapper();
         JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, SysDatapoint.class);
         List<SysDatapoint> points = mapper.readValue(pointJson, jt);
+        Set<Integer> set = new HashSet<>();
         int num = 0;
         for (SysDatapoint point : points) {
             num += datapointService.insert(point);
+            set.add(point.getTempId());
         }
-        updatePoints();
+        updatePointsByTempId(set);
         return toAjax(num == points.size() ? 1 : 0);
 //        return "system/templet/templet";
     }

@@ -10,6 +10,7 @@
         point_name AS "pointName",
         slave_name AS  "slaveName",
         dev_id AS "devId",
+        temp_id AS "tempId",
         slave_id AS "slaveId",
         equ_num AS "equNum",
         data_type AS "dataType",

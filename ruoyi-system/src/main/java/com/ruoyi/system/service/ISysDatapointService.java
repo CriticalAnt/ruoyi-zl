@@ -26,4 +26,6 @@ public interface ISysDatapointService {
     List<SysDatapoint> selectByTempId(Long tempId);
 
     int update(SysDatapoint datapoint);
+
+    List<SysDatapoint> selectByIds(String ids);
 }

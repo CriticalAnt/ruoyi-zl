@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: wtao
@@ -37,16 +39,18 @@ public class SysSlaveController extends BaseController {
         ObjectMapper mapper = new ObjectMapper();
         JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, SysSlave.class);
         List<SysSlave> slaves = mapper.readValue(pointJson, jt);
+        Set<Integer> set = new HashSet<>();
         int num = 0;
         for (SysSlave slave : slaves) {
             num += slaveService.insert(slave);
+            set.add(slave.getTempId());
         }
         if (num == slaves.size())
-            updatePoints();
+            updatePointsByDevId(set);
         return toAjax(num == slaves.size() ? 1 : 0);
     }
 
-    @RequiresPermissions("system:slave:list")
+//    @RequiresPermissions("system:slave:list")
     @PostMapping("/list/{id}")
     @ResponseBody
     public TableDataInfo list(@PathVariable("id") Long id, SysSlave slave) {
@@ -65,13 +69,20 @@ public class SysSlaveController extends BaseController {
     @ResponseBody
     public AjaxResult remove(String ids) {
         int num;
+        List<SysSlave> slaves;
         try {
             num = slaveService.deleteByIds(ids);
+            slaves = slaveService.selectByIds(ids);
         } catch (Exception e) {
             return error(e.getMessage());
         }
-        if (num > 0)
-            updatePoints();
+        if (num > 0) {
+            Set<Integer> set = new HashSet<>();
+            for (SysSlave slave : slaves) {
+                set.add(slave.getTempId());
+            }
+            updatePointsByDevId(set);
+        }
         return toAjax(num);
     }
 
@@ -87,7 +98,9 @@ public class SysSlaveController extends BaseController {
     public AjaxResult edit(SysSlave slave) {
         int num = slaveService.update(slave);
         if (num > 0)
-            updatePoints();
+            updatePointsByDevId(new HashSet<Integer>() {{
+                add(slave.getTempId());
+            }});
         return toAjax(num);
     }
 }
