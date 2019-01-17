@@ -14,7 +14,6 @@ import java.util.*;
  */
 @Component
 public class QuartzManager {
-//    private static final Logger logger = LoggerFactory.getLogger(QuartzJobManager.class);
 
     private static QuartzManager jobUtil;
 
@@ -22,12 +21,10 @@ public class QuartzManager {
     private Scheduler scheduler;
 
     public QuartzManager() {
-//        logger.info("init jobUtil");
         jobUtil = this;
     }
 
     public static QuartzManager getInstance() {
-//        logger.info("retun  JobCreateUtil");
         return QuartzManager.jobUtil;
     }
 

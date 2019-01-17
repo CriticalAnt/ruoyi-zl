@@ -31,13 +31,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Autowired
     QuartzManager quartzManager;
 
-    private int count = 0;
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//        String reg = "usr.cnAT+REGDT=6265383063356433656337363464653238343564623465363963333030363636";
-//        "usr.cnAT+REGDT=61323369736b736f3232333431323331343131333431"
-//        String reg = "usr.cnAT+REGDT?";
         ByteBuf buf = (ByteBuf) msg;
         byte[] req = new byte[buf.readableBytes()];
         buf.readBytes(req);
@@ -49,14 +44,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             System.out.print((b & 0xFF) + " ");
         }
         System.out.println();
-//        int len = reg.getBytes().length;
-//        byte[] send = new byte[len + 1];
-//        System.arraycopy(reg.getBytes(), 0, send, 0, len);
-//        send[len] = 0x0A;
-//        ByteBuf buf2 = ctx.alloc().buffer(len + 1);
-//        buf2.writeBytes(send);
-//        ctx.writeAndFlush(buf2);
-//        System.out.println(reg);
         if (!UtilsRegister.isRegistered(code, ip, ctx)) {
             ctx.close();
             return;
@@ -65,24 +52,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         if (code.length() != 32)
             receiveService.receive2(req, ctx);
     }
-
-//    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-//        byte[] req = new byte[msg.readableBytes()];
-//        msg.readBytes(req);
-//        String code = new String(req);
-//        String ip = ctx.channel().remoteAddress().toString();
-//        System.out.println(new Date() + "   data: " + code.length());
-//        if (!UtilsRegister.isRegistered(code, ip, ctx)) {
-//            ctx.close();
-//            return;
-//        }
-//        ConstantState.ctxHeartTime.put(ctx, new Date());
-//        if (code.length() > 100)
-//            return;
-//        if (code.length() != 32)
-//            receiveService.receive(req, ctx);
-//    }
-
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

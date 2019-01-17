@@ -12,4 +12,6 @@ import java.util.List;
 public interface SysCollectionPointMapper {
 
     List<SysCollectionPoint> findAll();
+
+    List<SysCollectionPoint> selectByDevId(int devId);
 }

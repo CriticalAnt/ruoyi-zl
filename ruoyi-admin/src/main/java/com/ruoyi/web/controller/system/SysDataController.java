@@ -76,7 +76,7 @@ public class SysDataController extends BaseController {
             map.put("msg", "设备ID或从机ID不能为空");
             return map;
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date startDate = startTime.equals("") ? null : dateFormat.parse(startTime);
         Date endDate = endTime.equals("") ? null : dateFormat.parse(endTime);
         //默认一天
@@ -96,7 +96,10 @@ public class SysDataController extends BaseController {
         criteria.and("devId").is(devId).and("slaveId").in(sIds);
         criteria.and("updateTime").gte(startDate).lte(endDate);
         query.addCriteria(criteria);
+        long star = System.currentTimeMillis();
         List<SysCollectionPoint> points = mongoTemplate.find(query, SysCollectionPoint.class);
+        long end = System.currentTimeMillis();
+        System.out.println("查询耗时：" + (end - star) + "ms");
         Map<String, List<SysCollectionPoint>> results = new HashMap<>();
         List<String> strKeys = new ArrayList<>();
         List<String> keys = new ArrayList<>();
@@ -122,14 +125,17 @@ public class SysDataController extends BaseController {
         for (Map.Entry<String, List<SysCollectionPoint>> entry : results.entrySet()) {
             Map<String, Object> resMap = new HashMap<>();
             List<Object[]> data = new ArrayList<>();
+            String name = "";
             for (SysCollectionPoint point : entry.getValue()) {
+                if (name.equals("") || !name.equals(point.getSlaveName() + ":" + point.getPointName()))
+                    name = point.getSlaveName() + ":" + point.getPointName();
                 Long l = point.getUpdateTime().getTime();
                 min = min > l ? l : min;
                 max = max < l ? l : max;
                 String value = point.getValue();
                 data.add(new Object[]{l, value});
             }
-            String name = strKeys.get(keys.indexOf(entry.getKey()));
+//            String name = strKeys.get(keys.indexOf(entry.getKey()));
             resMap.put("name", name);
             resMap.put("type", "line");
             resMap.put("data", data);
@@ -158,7 +164,7 @@ public class SysDataController extends BaseController {
             map.put("msg", "设备ID或从机ID不能为空");
             return AjaxResult.error("导出Excel失败，设备ID或从机ID不能为空！");
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date startDate = startTime.equals("") ? null : dateFormat.parse(startTime);
         Date endDate = endTime.equals("") ? null : dateFormat.parse(endTime);
         //默认一天

@@ -40,13 +40,14 @@ public class UtilsRegister {
                 quartzManager.addJob(ctx.channel().remoteAddress().toString(), code
                         , cron, map);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("UtilsRegister::isRegistered:" + e.getMessage());
             }
             new Thread(() -> {
                 try {
+                    Thread.sleep(1000);
                     WebSocketServer.sendMessage();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    logger.error("UtilsRegister::isRegistered:" + e.getMessage());
                 }
             }).start();
             return true;

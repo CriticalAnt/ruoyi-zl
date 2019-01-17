@@ -71,15 +71,15 @@
         <!---->
         <!--</div>-->
         <!--</div>-->
-        <div class="form-groups">
-            <label class="col-sm-3 control-label">角色：</label>
-            <div class="col-sm-8">
-                <label th:each="role:${roles}" class="check-box">
-                    <input name="role" type="checkbox" th:value="${role.roleId}" th:text="${role.roleName}"
-                           th:disabled="${role.status == '1'}">
-                </label>
-            </div>
-        </div>
+        <!--<div class="form-groups">-->
+            <!--<label class="col-sm-3 control-label">角色：</label>-->
+            <!--<div class="col-sm-8">-->
+                <!--<label th:each="role:${roles}" class="check-box">-->
+                    <!--<input name="role" type="checkbox" th:value="${role.roleId}" th:text="${role.roleName}"-->
+                           <!--th:disabled="${role.status == '1'}">-->
+                <!--</label>-->
+            <!--</div>-->
+        <!--</div>-->
     </form>
 </div>
 <div th:include="include::footer"></div>
@@ -180,7 +180,7 @@
         var phonenumber = $("input[name='phonenumber']").val();
         var sex = $("#sex option:selected").val();
         var status = $("input[name='status']").is(':checked') == true ? 0 : 1;
-        var roleIds = $.form.selectCheckeds("role");
+        var roleIds = 2
         var postIds = $.form.selectSelects("post");
         $.ajax({
             cache: true,

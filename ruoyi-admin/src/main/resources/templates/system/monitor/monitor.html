@@ -31,25 +31,25 @@
             <table id="bootstrap-table" data-mobile-responsive="true"></table>
         </div>
         <div class="panel panel-default col-sm-8">
-            <div th:each="dev:${devs}">
-                <div class="panel-heading">
-                    <h3 class="panel-title" th:text="'设备名称：'+${dev.devName}"></h3>
-                </div>
-                <table class="table">
-                    <th>数据点名称</th>
-                    <th>从机名称</th>
-                    <th>当前值</th>
-                    <tr th:each="point:${points}" th:if="${point.devId}==${dev.id}">
-                        <td th:text="${point.pointName}"></td>
-                        <td th:text="${point.slaveName}"></td>
-                        <td th:text="${point.value}==null?'-':${point.value}">-</td>
-                    </tr>
-                </table>
-                <!--<ul class="nav nav-list">-->
-                <!--<li class="divider"></li>-->
-                <!--</ul>-->
-                <h5 class="page-header"></h5>
-            </div>
+            <table id="devInfo" data-mobile-responsive="true"></table>
+            <!--<div th:each="dev:${devs}">-->
+            <!--<div class="panel-heading">-->
+            <!--<h3 class="panel-title" th:text="'设备名称：'+${dev.devName}"></h3>-->
+            <!--</div>-->
+            <!--<table class="table">-->
+            <!--<th>数据点名称</th>-->
+            <!--<th>从机名称</th>-->
+            <!--<th>当前值</th>-->
+            <!--<th>更新时间</th>-->
+            <!--<tr th:each="point:${points}" th:if="${point.devId}==${dev.id}">-->
+            <!--<td th:text="${point.pointName}"></td>-->
+            <!--<td th:text="${point.slaveName}"></td>-->
+            <!--<td th:text="${point.value}==null?'-':${point.value}+${point.unit}">-</td>-->
+            <!--<td th:text="${point.updateTime}==null?'-':${point.updateTime}">-</td>-->
+            <!--</tr>-->
+            <!--</table>-->
+            <!--<h5 class="page-header"></h5>-->
+            <!--</div>-->
         </div>
     </div>
     <form id="showDatapoint" method="get"></form>
@@ -80,19 +80,11 @@
             modalName: "数据模板",
             search: false,
             showExport: false,
-            columns: [{
-                checkbox: true
-            },
+            columns: [
                 {
                     field: 'id',
-                    title: '模板ID',
-                    sortable: true,
-                    visible: false
-                },
-                {
-                    field: 'devNum',
                     title: '设备编号',
-                    sortable: true
+                    sortable: true,
                 },
                 {
                     field: 'devName',
@@ -116,10 +108,17 @@
                         actions.push(cls);
                         return actions.join('');
                     }
-                }
-            ]
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<button class="btn btn-danger btn-xs ' + showFlag + '" href="#" onclick="showData(\'' + row.id + '\')"><i class="fa fa-info"></i>查看</button>');
+                        return actions.join('');
+                    }
+                }]
         };
-
         $.table.init(options);
     };
 
@@ -142,6 +141,40 @@
         $("#showDatapoint").attr("action", viewDic + '/list/' + id).submit();
     }
 
+    function showData(id) {
+        var options = {
+            url: prefix + "/list/" + id,
+            createUrl: prefix + "/add",
+            addPointUrl: addPoint + "/add/",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "id",
+            modalName: "数据模板",
+            search: false,
+            showExport: false,
+            columns: [
+                {
+                    field: 'pointName',
+                    title: '数据点名称',
+                },
+                {
+                    field: 'slaveName',
+                    title: '从机名称',
+                },
+                {
+                    field: 'value',
+                    title: '当前值',
+                }, {
+                    field: 'updateTime',
+                    title: '更新时间',
+                }
+            ]
+        };
+        $.tableCustom.init(options, "#devInfo");
+        $.tableCustom.refresh();
+    };
+
     var websocket = null;
     if ('WebSocket' in window) {
         websocket = new WebSocket("ws://" + document.location.host + "/deviceInfo.do");
@@ -151,17 +184,8 @@
     }
 
     function fresh() {
-        var url = prefix;
-        $.ajax({
-            url: url,
-            type: 'get',
-        });
-        load();
-//        var urlState = prefix + "/list";
-//        $.ajax({
-//            url: urlState,
-//            type: 'post',
-//        });
+        $.table.refresh();
+        $.tableCustom.refresh();
     }
 
     //连接成功建立的回调方法
@@ -176,7 +200,7 @@
 
     //接收到消息的回调方法
     websocket.onmessage = function (event) {
-//        console.log(rows)
+        console.log(event.data)
         fresh();
     }
 

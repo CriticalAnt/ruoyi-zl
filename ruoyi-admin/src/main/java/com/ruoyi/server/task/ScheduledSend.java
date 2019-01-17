@@ -29,7 +29,6 @@ public class ScheduledSend {
         List<SysDevice> devices = deviceService.findAll();
         List<SysDevice> devsOnline = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
-        Map<SysCollectionPoint, String> res = new HashMap<>();
         synchronized (ConstantState.registeredCode) {
             for (Map.Entry<String, String> entry : ConstantState.registeredCode.entrySet())
                 map.put(entry.getKey(), entry.getValue());
@@ -38,6 +37,5 @@ public class ScheduledSend {
             if (map.get(device.getCode()).equals("1"))
                 devsOnline.add(device);
         }
-
     }
 }

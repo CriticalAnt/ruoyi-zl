@@ -26,7 +26,7 @@ public class ScheduledActive {
             }
         }
         for (Map.Entry<ChannelHandlerContext, Date> entry : map.entrySet()) {
-            if (new Date().getTime() - entry.getValue().getTime() > 3000 * 1000) {
+            if (new Date().getTime() - entry.getValue().getTime() > 120 * 1000) {
                 entry.getKey().close();
             }
         }

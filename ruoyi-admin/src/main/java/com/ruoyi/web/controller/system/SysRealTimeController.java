@@ -83,19 +83,21 @@ public class SysRealTimeController {
         }
         List<Map<String, Object>> series = new ArrayList<>();
         Map<String, SysCollectionPoint> results = new HashMap<>();
-        List<String> strKeys = new ArrayList<>();
-        List<String> keys = new ArrayList<>();
+//        List<String> strKeys = new ArrayList<>();
+//        List<String> keys = new ArrayList<>();
+        Map<String, String> mapKeys = new HashMap<>();
         for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : points.entrySet()) {
             for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
                 for (SysCollectionPoint point : pEntry.getValue().getPoints()) {
                     if (sIdList.contains(point.getSlaveId()) && pIdList.contains(point.getPointId())) {
                         String key = point.getSlaveId() + "-" + point.getPointId();
                         String strKey = point.getSlaveName() + ":" + point.getPointName();
-                        if (!results.containsKey(key)) {
-                            strKeys.add(strKey);
-                            keys.add(key);
-                        }
+//                        if (!results.containsKey(key)) {
+//                            strKeys.add(strKey);
+//                            keys.add(key);
+//                        }
                         results.put(key, point);
+                        mapKeys.put(key, strKey);
                     }
                 }
             }
@@ -104,7 +106,7 @@ public class SysRealTimeController {
             Map<String, Object> resMap = new HashMap<>();
             String value = entry.getValue().getValue();
             String[] data = new String[]{value};
-            String name = strKeys.get(keys.indexOf(entry.getKey()));
+            String name = mapKeys.get(entry.getKey());
             resMap.put("name", name);
             resMap.put("type", "line");
             resMap.put("data", data);

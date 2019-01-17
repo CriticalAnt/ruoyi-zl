@@ -25,19 +25,8 @@ public class SendToClients {
 
     private Map<String, ChannelHandlerContext> mapChannel = new HashMap<>();
 
-    //    @Scheduled(cron = "0/1 * * * * *")
     public void run(String regCode, ChannelHandlerContext ctx) throws Exception {
         try {
-//            System.out.println(new Date());
-//            mapChannel.clear();
-//            synchronized (ConstantState.registeredCtx) {
-//                for (Map.Entry<String, ChannelHandlerContext> entry : ConstantState.registeredCtx.entrySet()) {
-//                    mapChannel.put(entry.getKey(), entry.getValue());
-//                }
-//            }
-//            for (Map.Entry<String, ChannelHandlerContext> entry : mapChannel.entrySet()) {
-//
-//                ChannelHandlerContext ctx = entry.getValue();
             Map<String, ResolveRecord> points;
             synchronized (ConstantState.codeRecord) {
                 points = ConstantState.codeRecord.get(regCode);
@@ -79,13 +68,10 @@ public class SendToClients {
                     System.out.println();
                     adr += qryLen;
                     len -= 125;
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 }
             }
-        } catch (
-                Exception e)
-
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

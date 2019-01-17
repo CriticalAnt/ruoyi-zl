@@ -127,6 +127,129 @@
                 return actions.join('');
             }
         },
+        //自定义表格
+        tableCustom: {
+            _option: {},
+            _params: {},
+            _tId: '',
+            // 初始化表格
+            init: function (options, tId) {
+                $.tableCustom._tId = tId;
+                $.tableCustom._option = options;
+                $.tableCustom._params = $.common.isEmpty(options.queryParams) ? $.tableCustom.queryParams : options.queryParams;
+                _sortOrder = $.common.isEmpty(options.sortOrder) ? "asc" : options.sortOrder;
+                _sortName = $.common.isEmpty(options.sortName) ? "" : options.sortName;
+                _striped = $.common.isEmpty(options.striped) ? false : options.striped;
+                $(tId).bootstrapTable({
+                    url: options.url,                                   // 请求后台的URL（*）
+                    contentType: "application/x-www-form-urlencoded",   // 编码类型
+                    method: 'post',                                     // 请求方式（*）
+                    cache: false,                                       // 是否使用缓存
+                    striped: _striped,                                  // 是否显示行间隔色
+                    sortable: true,                                     // 是否启用排序
+                    sortStable: true,                                   // 设置为 true 将获得稳定的排序
+                    sortName: _sortName,                                // 排序列名称
+                    sortOrder: _sortOrder,                              // 排序方式  asc 或者 desc
+                    pagination: false,                                  // 是否显示分页（*）
+                    pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+                    pageSize: 10,                                       // 每页的记录行数（*）
+                    pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+                    iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+                    toolbar: '#toolbar',                                // 指定工作栏
+                    sidePagination: "server",                           // 启用服务端分页
+                    search: false,                                      // 是否显示搜索框功能
+                    showSearch: false,                                  // 是否显示检索信息
+                    showRefresh: false,                                 // 是否显示刷新按钮
+                    showColumns: false,                                 // 是否显示隐藏某列下拉框
+                    showToggle: false,                                  // 是否显示详细视图和列表视图的切换按钮
+                    showExport: false,                                  // 是否支持导出文件
+                    queryParams: $.tableCustom._params,                       // 传递参数（*）
+                    columns: options.columns,                           // 显示列信息（*）
+                    responseHandler: $.tableCustom.responseHandler            // 回调函数
+                });
+            },
+            // 查询条件
+            queryParams: function (params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: params.search,
+                    orderByColumn: params.sort,
+                    isAsc: params.order
+                };
+            },
+            // 请求获取数据后处理回调函数
+            responseHandler: function (res) {
+                if (res.code == 0) {
+                    return {rows: res.rows, total: res.total};
+                } else {
+                    $.modal.alertWarning(res.msg);
+                    return {rows: [], total: 0};
+                }
+            },
+            // 搜索
+            search: function (formId) {
+                var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+                var params = $($.tableCustom._tId).bootstrapTable('getOptions');
+                params.queryParams = function (params) {
+                    var search = {};
+                    $.each($("#" + currentId).serializeArray(), function (i, field) {
+                        search[field.name] = field.value;
+                    });
+                    search.pageSize = params.limit;
+                    search.pageNum = params.offset / params.limit + 1;
+                    search.searchValue = params.search;
+                    search.orderByColumn = params.sort;
+                    search.isAsc = params.order;
+                    return search;
+                }
+                $($.tableCustom._tId).bootstrapTable('refresh', params);
+            },
+            // 下载
+            exportExcel: function (formId) {
+                var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+                $.modal.loading("正在导出数据，请稍后...");
+                $.post($.tableCustom._option.exportUrl, $("#" + currentId).serializeArray(), function (result) {
+                    if (result.code == web_status.SUCCESS) {
+                        window.location.href = ctx + "common/download?fileName=" + result.msg + "&delete=" + true;
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                    $.modal.closeLoading();
+                });
+            },
+            // 刷新
+            refresh: function () {
+                $($.tableCustom._tId).bootstrapTable('refresh', {
+                    url: $.tableCustom._option.url,
+                    silent: true
+                });
+            },
+            // 查询选中列值
+            selectColumns: function (column) {
+                return $.map($($.tableCustom._tId).bootstrapTable('getSelections'), function (row) {
+                    return row[column];
+                });
+            },
+            // 查询选中首列值
+            selectFirstColumns: function () {
+                return $.map($($.tableCustom._tId).bootstrapTable('getSelections'), function (row) {
+                    return row[$.tableCustom._option.columns[1].field];
+                });
+            },
+            // 回显数据字典
+            selectDictLabel: function (datas, value) {
+                var actions = [];
+                $.each(datas, function (index, dict) {
+                    if (dict.dictValue == value) {
+                        actions.push("<span class='badge badge-" + dict.listClass + "'>" + dict.dictLabel + "</span>");
+                        return false;
+                    }
+                });
+                return actions.join('');
+            }
+        },
         // 表格树封装处理
         treeTable: {
             _option: {},

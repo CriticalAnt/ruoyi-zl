@@ -31,4 +31,9 @@
 
     </select>
 
+    <select id="selectByDevId" resultType="SysCollectionPoint">
+        <include refid="selectDevices"/>
+        WHERE dev_id = #{devId}
+    </select>
+
 </mapper>

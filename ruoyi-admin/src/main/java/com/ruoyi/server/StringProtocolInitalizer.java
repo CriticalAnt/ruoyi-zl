@@ -33,7 +33,6 @@ public class StringProtocolInitalizer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
-//        pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
         pipeline.addLast("customDecoder", new CustomDecoder());
         pipeline.addLast("handler", serverHandler);
         pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));

@@ -13,11 +13,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -49,6 +47,9 @@ public class SysMonitorController extends BaseController {
             for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ConstantState.ctxRecord.entrySet())
                 ps.put(entry.getKey(), entry.getValue());
         }
+        for (SysCollectionPoint p : points) {
+            resSet.add(p);
+        }
         for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ps.entrySet()) {
             for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
                 for (SysCollectionPoint point : pEntry.getValue().getPoints()) {
@@ -56,10 +57,7 @@ public class SysMonitorController extends BaseController {
                         if (p.getPointId() == point.getPointId()
                                 && p.getSlaveId() == point.getSlaveId()
                                 && p.getDevId() == point.getDevId()) {
-                            try {
-                                resSet.remove(p);
-                            } catch (Exception e) {
-                            }
+                            resSet.remove(p);
                             p = point;
                             resSet.add(p);
                         }
@@ -67,8 +65,22 @@ public class SysMonitorController extends BaseController {
                 }
             }
         }
+        List<SysCollectionPoint> list = new ArrayList<>(resSet);
+        Collections.sort(list, (o1, o2) -> {
+            int x = o1.getDevId() - o2.getDevId();
+            int y = o1.getSlaveId() - o2.getSlaveId();
+            int z = Integer.valueOf(o1.getRegisterAdr())
+                    - Integer.valueOf(o2.getRegisterAdr());
+            if (x == 0) {
+                if (y == 0) {
+                    return z;
+                }
+                return y;
+            }
+            return x;
+        });
         modelMap.put("devs", devs);
-        modelMap.put("points", resSet);
+        modelMap.put("points", list);
         return prefix + "/monitor";
     }
 
@@ -94,5 +106,71 @@ public class SysMonitorController extends BaseController {
             mapList.add(res);
         }
         return getDataTable(mapList, devices);
+    }
+
+    @PostMapping("list/{devId}")
+    @ResponseBody
+    public TableDataInfo list(@PathVariable int devId) {
+        List<SysDevice> devs = deviceService.findAll();
+        List<SysCollectionPoint> points = pointMapper.selectByDevId(devId);
+//        List<SysCollectionPoint> res = new ArrayList<>();
+        Set<SysCollectionPoint> resSet = Sets.newHashSet();
+        Map<ChannelHandlerContext, Map<String, ResolveRecord>> ps = new HashMap<>();
+        synchronized (ConstantState.ctxRecord) {
+            for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ConstantState.ctxRecord.entrySet())
+                ps.put(entry.getKey(), entry.getValue());
+        }
+        for (SysCollectionPoint p : points) {
+            resSet.add(p);
+        }
+        for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ps.entrySet()) {
+            for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
+                for (SysCollectionPoint point : pEntry.getValue().getPoints()) {
+                    for (SysCollectionPoint p : points) {
+                        if (p.getPointId() == point.getPointId()
+                                && p.getSlaveId() == point.getSlaveId()
+                                && p.getDevId() == point.getDevId()) {
+                            resSet.remove(p);
+                            p = point;
+                            resSet.add(p);
+                        }
+                    }
+                }
+            }
+        }
+        startPage();
+        List<SysCollectionPoint> list = new ArrayList<>(resSet);
+        Collections.sort(list, (o1, o2) -> {
+            int x = o1.getDevId() - o2.getDevId();
+            int y = o1.getSlaveId() - o2.getSlaveId();
+            int z = Integer.valueOf(o1.getRegisterAdr())
+                    - Integer.valueOf(o2.getRegisterAdr());
+            if (x == 0) {
+                if (y == 0) {
+                    return z;
+                }
+                return y;
+            }
+            return x;
+        });
+        List<Map<String, String>> result = new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        for (SysCollectionPoint point : list) {
+            Map<String, String> map = new HashMap<>();
+            map.put("pointName", point.getPointName());
+            map.put("slaveName", point.getSlaveName());
+            if (point.getValue() == null) {
+                map.put("value", "-");
+            } else {
+                map.put("value", point.getValue() + point.getUnit());
+            }
+            if (point.getUpdateTime() == null) {
+                map.put("updateTime", "-");
+            } else {
+                map.put("updateTime", format.format(point.getUpdateTime()));
+            }
+            result.add(map);
+        }
+        return getDataTable(result);
     }
 }

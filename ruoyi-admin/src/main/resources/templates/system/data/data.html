@@ -3,6 +3,9 @@
       xmlns:shiro="http://www.w3.org/1999/xhtml">
 <meta charset="utf-8">
 <head th:include="include :: header"></head>
+<head>
+    <link th:href="@{/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
+</head>
 <body class="gray-bg">
 
 <div class="container-div">
@@ -35,14 +38,16 @@
                         </li>
                         <li class="select-time">
                             <label>时间段： </label>
-                            <input type="text" class="datetimepicker" id="startTime" placeholder="开始时间"
-                            />
+                            <!--id="startTime"-->
+                            <input type="text" class="datetimepicker" id="startDate"
+                                   data-date-format="yyyy-mm-dd hh:ii" placeholder="开始时间"/>
                             <span>-</span>
                             <!--name="params[beginTime]"-->
                             <!--time-input-->
                             <!--name="params[endTime]"-->
-                            <input type="text" class="datetimepicker" id="endTime" placeholder="结束时间"
-                            />
+                            <!--id="endTime"-->
+                            <input type="text" class="datetimepicker" id="endDate"
+                                   data-date-format="yyyy-mm-dd hh:ii" placeholder="结束时间"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="searchHis()"><i
@@ -64,16 +69,20 @@
 </div>
 
 <div th:include="include :: footer"></div>
+<div>
+    <script th:src="@{/js/bootstrap-datetimepicker.js}"></script>
+</div>
 <script th:inline="javascript">
 
-    //    $('.datetimepicker').datetimepicker({
-    //        language: 'zh-CN',//显示中文		        　　
-    //        format: 'yyyy/mm/dd hh:ii',//显示格式		        　　
-    //        minView: 0,//设置只显示到月份		        　　
-    //        initialDate: new Date(),
-    //        autoclose: true,//选中自动关闭	        　　
-    //        todayBtn: true,//显示今日按钮
-    //    });
+    $('.datetimepicker').datetimepicker({
+        language: 'zh-CN',//显示中文		        　　
+        format: 'yyyy/mm/dd hh:ii',//显示格式		        　　
+        minView: 0,//设置只显示到月份		        　　
+        initialDate: new Date(),
+        autoclose: true,//选中自动关闭	        　　
+        todayBtn: true,//显示今日按钮
+    });
+
     function init() {
         $("#devName").selectpicker({
             noneSelectedText: '请选择',
@@ -202,8 +211,8 @@
         var pointId = $("#pointName").val();
         var ids = pointId == null ? '' : pointId.toString();
         var sIds = slaveId == null ? '' : slaveId.toString();
-        var startTime = document.getElementById("startTime").value;
-        var endTime = document.getElementById("endTime").value;
+        var startTime = document.getElementById("startDate").value;
+        var endTime = document.getElementById("endDate").value;
         startTime = startTime == null ? '' : startTime;
         endTime = endTime == null ? '' : endTime;
         var min;
@@ -250,8 +259,8 @@
         var pointId = $("#pointName").val();
         var ids = pointId == null ? '' : pointId.toString();
         var sIds = slaveId == null ? '' : slaveId.toString();
-        var startTime = document.getElementById("startTime").value;
-        var endTime = document.getElementById("endTime").value;
+        var startTime = document.getElementById("startDate").value;
+        var endTime = document.getElementById("endDate").value;
         startTime = startTime == null ? '' : startTime;
         endTime = endTime == null ? '' : endTime;
         var data = {

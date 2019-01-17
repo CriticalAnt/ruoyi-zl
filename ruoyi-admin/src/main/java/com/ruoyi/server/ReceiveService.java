@@ -4,6 +4,7 @@ import com.ruoyi.server.common.ConstantState;
 import com.ruoyi.server.domain.ResolveRecord;
 import com.ruoyi.server.utils.UtilsCRC;
 import com.ruoyi.system.domain.SysCollectionPoint;
+import com.ruoyi.websocket.server.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import org.nfunk.jep.JEP;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +132,7 @@ public class ReceiveService {
             synchronized (ConstantState.ctxRecord) {
                 ConstantState.ctxRecord.get(ctx).get(key).setReader(reader);
             }
+            new Thread(() -> WebSocketServer.sendMessage()).start();
         } catch (Exception e) {
             e.printStackTrace();
         }

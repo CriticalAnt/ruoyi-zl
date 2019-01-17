@@ -19,7 +19,6 @@ public class SchedulerQuartzJob implements Job {
 
     @Override
     public void execute(JobExecutionContext arg0) {
-//        System.out.println("开始：" + System.currentTimeMillis());
         JobDataMap jobDataMap = arg0.getJobDetail().getJobDataMap();
         String key = jobDataMap.getKeys()[0];
         ChannelHandlerContext ctx = (ChannelHandlerContext) jobDataMap.get(key);
@@ -29,6 +28,5 @@ public class SchedulerQuartzJob implements Job {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        System.out.println("结束：" + System.currentTimeMillis());
     }
 }
