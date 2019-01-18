@@ -135,7 +135,6 @@ public class SysDataController extends BaseController {
                 String value = point.getValue();
                 data.add(new Object[]{l, value});
             }
-//            String name = strKeys.get(keys.indexOf(entry.getKey()));
             resMap.put("name", name);
             resMap.put("type", "line");
             resMap.put("data", data);

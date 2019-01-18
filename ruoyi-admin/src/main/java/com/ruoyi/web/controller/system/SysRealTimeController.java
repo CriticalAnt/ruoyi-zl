@@ -83,8 +83,6 @@ public class SysRealTimeController {
         }
         List<Map<String, Object>> series = new ArrayList<>();
         Map<String, SysCollectionPoint> results = new HashMap<>();
-//        List<String> strKeys = new ArrayList<>();
-//        List<String> keys = new ArrayList<>();
         Map<String, String> mapKeys = new HashMap<>();
         for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : points.entrySet()) {
             for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
@@ -92,10 +90,6 @@ public class SysRealTimeController {
                     if (sIdList.contains(point.getSlaveId()) && pIdList.contains(point.getPointId())) {
                         String key = point.getSlaveId() + "-" + point.getPointId();
                         String strKey = point.getSlaveName() + ":" + point.getPointName();
-//                        if (!results.containsKey(key)) {
-//                            strKeys.add(strKey);
-//                            keys.add(key);
-//                        }
                         results.put(key, point);
                         mapKeys.put(key, strKey);
                     }
@@ -114,15 +108,5 @@ public class SysRealTimeController {
         }
         map.put("series", series);
         return map;
-
-//        if (arrtitle.size() > 0) {
-//            map.put("arrtitle", arrtitle.get(0));
-//            map.put("yDatas", yDatas.get(0));
-//            map.put("arrtitle", 123);
-//            map.put("yDatas", yDatas);
-//            return map;
-//        }
-//        map.put("msg", "has no data");
-//        return map;
     }
 }

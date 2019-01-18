@@ -23,8 +23,6 @@ public class SendToClients {
     @Autowired
     QuartzManager quartzManager;
 
-    private Map<String, ChannelHandlerContext> mapChannel = new HashMap<>();
-
     public void run(String regCode, ChannelHandlerContext ctx) throws Exception {
         try {
             Map<String, ResolveRecord> points;

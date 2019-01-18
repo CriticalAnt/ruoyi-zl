@@ -51,6 +51,5 @@ public class SysDatapointController extends BaseController {
         }
         updatePointsByTempId(set);
         return toAjax(num == points.size() ? 1 : 0);
-//        return "system/templet/templet";
     }
 }

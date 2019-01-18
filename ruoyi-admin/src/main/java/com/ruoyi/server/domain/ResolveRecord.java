@@ -21,7 +21,6 @@ public class ResolveRecord {
 
     public ResolveRecord(List<SysCollectionPoint> points) {
         this.points = points;
-//        this.readerIndex = Integer.valueOf(points.get(0).getRegisterAdr()) % 10000;
     }
 
     public int getReader() {

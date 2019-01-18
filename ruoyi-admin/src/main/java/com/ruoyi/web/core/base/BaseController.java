@@ -52,7 +52,6 @@ public class BaseController {
             String rgsCode = device.getCode();
             Map<String, ResolveRecord> map = new HashMap<>();
             for (SysCollectionPoint point : points) {
-//                set.contains(point.getTempId()) &&
                 if (point.getDevId() == device.getId()) {
                     int equNum = point.getEquNum();
                     int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
@@ -70,8 +69,6 @@ public class BaseController {
             ConstantState.codeRecord.put(rgsCode, map);
             ConstantState.codeCron.put(device.getCode(), device.getFrequency());
             if (ConstantState.registeredCtx.get(rgsCode) != null) {
-//                ConstantState.ctxRecord.put(ConstantState.registeredCtx.get(rgsCode)
-//                        , map);
                 ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(rgsCode));
                 ConstantState.registeredCtx.get(rgsCode).close();
                 ConstantState.registeredCtx.remove(rgsCode);
@@ -90,7 +87,6 @@ public class BaseController {
             String rgsCode = device.getCode();
             Map<String, ResolveRecord> map = new HashMap<>();
             for (SysCollectionPoint point : points) {
-//                set.contains(device.getId()) &&
                 if (point.getDevId() == device.getId()) {
                     int equNum = point.getEquNum();
                     int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
@@ -108,8 +104,6 @@ public class BaseController {
             ConstantState.codeRecord.put(rgsCode, map);
             ConstantState.codeCron.put(device.getCode(), device.getFrequency());
             if (ConstantState.registeredCtx.get(rgsCode) != null) {
-//                ConstantState.ctxRecord.put(ConstantState.registeredCtx.get(rgsCode)
-//                        , map);
                 ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(rgsCode));
                 ConstantState.registeredCtx.get(rgsCode).close();
                 ConstantState.registeredCtx.remove(rgsCode);
@@ -140,33 +134,6 @@ public class BaseController {
         if (ctx != null) {
             quartzManager.updateJob(ctx.channel().remoteAddress().toString(), rgsCode, device.getFrequency());
         }
-//        String rgsCode = device.getCode();
-//        List<SysCollectionPoint> points = pointMapper.findAll();
-//        if (ConstantState.registeredCtx.get(rgsCode) != null) {
-//            ConstantState.registeredCtx.get(rgsCode).close();
-//            ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(rgsCode));
-//            ConstantState.registeredCode.remove(rgsCode);
-//            ConstantState.registeredCtx.remove(rgsCode);
-//        }
-//        ConstantState.codeCron.remove(rgsCode);
-//        Map<String, ResolveRecord> map = new HashMap<>();
-//        for (SysCollectionPoint point : points) {
-//            if (point.getDevId() == device.getId()) {
-//                int equNum = point.getEquNum();
-//                int code = Integer.valueOf(point.getRegisterAdr()) / 10000;
-//                code = code == 3 ? 4 : 3;
-//                String key = equNum + "-" + code;
-//                if (!map.containsKey(key)) {
-//                    ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
-//                        add(point);
-//                    }});
-//                    map.put(key, record);
-//                } else
-//                    map.get(key).getPoints().add(point);
-//            }
-//        }
-//        ConstantState.codeRecord.put(rgsCode, map);
-//        addDevice(device);
     }
 
     public void addDevice(SysDevice device) {

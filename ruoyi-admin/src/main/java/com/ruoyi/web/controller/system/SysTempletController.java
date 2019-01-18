@@ -92,7 +92,6 @@ public class SysTempletController extends BaseController {
 
     @GetMapping("/edit/{roleId}")
     public String edit(@PathVariable("roleId") Long roleId, ModelMap mmap) {
-//        mmap.put("role", roleService.selectRoleById(roleId));
         mmap.put("id", roleId);
         return prefix + "/edit";
     }
