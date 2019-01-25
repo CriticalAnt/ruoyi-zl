@@ -7,7 +7,7 @@ package com.ruoyi.server.utils;
  */
 public class UtilsCRC {
     /**
-     * 计算CRC16校验码
+     * 计算CRC32校验码
      *
      * @param bytes
      * @return

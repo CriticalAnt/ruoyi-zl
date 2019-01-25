@@ -146,25 +146,17 @@
             },
             success: function (data) {
                 var result = data;
-//                arrtitle = result.arrtitle;
                 var res = result.series;
                 now = new Date();
                 if (xdata.length >= 10) {
                     xdata.shift();
                 }
-//                arr = result.arr;
                 var hour = now.getHours();
                 var min = now.getMinutes();
                 var sec = now.getSeconds();
                 hour = hour > 9 ? hour : "0" + hour;
                 min = min > 9 ? min : "0" + min;
                 sec = sec > 9 ? sec : "0" + sec;
-//                if (series[0].data.length >= 10) {
-//                    series[0].data.shift();
-//                }
-//                series[0].name = res.name;
-//                series[0].data.push(res.data);
-//                console.log(series)
                 if (changed) {
                     xdata = [];
                     series = res;
@@ -221,7 +213,6 @@
 
     function changeSlave() {
         document.getElementById("pointName").options.length = 0;
-//        var slaveId = document.getElementById("slaveName").value;
         var slaveId = $("#slaveName").val();
         var devId = document.getElementById("devName").value;
         var points = [[${points}]];
