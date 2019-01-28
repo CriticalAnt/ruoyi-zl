@@ -65,8 +65,6 @@ public class SysDataController extends BaseController {
     @ResponseBody
     public Map<String, Object> list(Long devId, String slaveIds, String pointIds, String startTime, String endTime) throws ParseException {
         Map<String, Object> map = new HashMap<>();
-//        Long[] pIds = Convert.toLongArray(pointIds);
-//        Long[] sIds = Convert.toLongArray(slaveIds);
         String[] Ids = pointIds.split(",");
         Map<Long, List<Long>> mapIds = new HashMap<>();
         for (String id : Ids) {
@@ -104,7 +102,6 @@ public class SysDataController extends BaseController {
         }
         long star = System.currentTimeMillis();
         for (Map.Entry<Long, List<Long>> entry : mapIds.entrySet()) {
-//            Long[] pIds = (Long[]) (entry.getValue().toArray());
             Long[] pIds = new Long[entry.getValue().size()];
             entry.getValue().toArray(pIds);
             Long sId = entry.getKey();
@@ -112,11 +109,9 @@ public class SysDataController extends BaseController {
             Criteria criteria = new Criteria();
             if (pIds.length > 0)
                 criteria.and("pointId").in(pIds);
-//            criteria.and("devId").is(devId).and("slaveId").in(sIds);
             criteria.and("devId").is(devId).and("slaveId").is(sId);
             criteria.and("updateTime").gte(startDate).lte(endDate);
             query.addCriteria(criteria);
-//            List<SysCollectionPoint> ps = mongoTemplate.find(query, SysCollectionPoint.class);
             points.addAll(mongoTemplate.find(query, SysCollectionPoint.class));
         }
 
@@ -175,8 +170,6 @@ public class SysDataController extends BaseController {
                              Long devId, String slaveIds, String pointIds, String startTime, String endTime) throws ParseException {
 
         Map<String, Object> map = new HashMap<>();
-//        Long[] pIds = Convert.toLongArray(pointIds);
-//        Long[] sIds = Convert.toLongArray(slaveIds);
         String[] Ids = pointIds.split(",");
         Map<Long, List<Long>> mapIds = new HashMap<>();
         for (String id : Ids) {
@@ -220,7 +213,6 @@ public class SysDataController extends BaseController {
             Long sId = entry.getKey();
             if (pIds.length > 0)
                 criteria.and("pointId").in(pIds);
-            //            criteria.and("devId").is(devId).and("slaveId").in(sIds);
             criteria.and("devId").is(devId).and("slaveId").is(sId);
             criteria.and("updateTime").gte(startDate).lte(endDate);
             query.addCriteria(criteria);
