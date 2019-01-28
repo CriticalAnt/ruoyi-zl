@@ -176,31 +176,26 @@
         if (slaveId == null)
             slaveId = [];
         $.each(slaves, function (index, slave) {
-//            $("#pointName").append("<optgroup  label='" + slave.slaveName + "'>")
             if (slaveId.indexOf(slave.id.toString()) > -1) {
-                console.log(slave.id);
                 var str = '';
                 str += "<optgroup  label='" + slave.slaveName + "'>";
                 $.each(points, function (index, item) {
                     var id = item.pointId;
                     var name = item.pointName;
                     if (slave.id == item.slaveId && devId == item.devId) {
-                        str += "<option value='" + id + "'>" + name + "</option>";
-//                    $("#pointName").append("<option value='" + id + "'>" + name + "</option>")
+                        var finalId = slave.id + "_" + id;
+                        str += "<option value='" + finalId + "'>" + name + "</option>";
                     }
                 });
                 str += "</optgroup>";
                 $("#pointName").append(str)
             }
-//            $("#pointName").append("</optgroup>")
         });
         $('.selectpicker').selectpicker('refresh');
     }
 
     function changePoint() {
-//        pointId = document.getElementById("pointName").value;
         var pointIds = $("#pointName").val();
-        console.log(pointIds);
     }
 
     function searchHis() {

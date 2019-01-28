@@ -1,7 +1,6 @@
 package com.ruoyi.web.controller.system;
 
 import com.ruoyi.common.base.AjaxResult;
-import com.ruoyi.common.support.Convert;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.domain.SysSlave;
@@ -66,9 +65,22 @@ public class SysDataController extends BaseController {
     @ResponseBody
     public Map<String, Object> list(Long devId, String slaveIds, String pointIds, String startTime, String endTime) throws ParseException {
         Map<String, Object> map = new HashMap<>();
-        Long[] pIds = Convert.toLongArray(pointIds);
-        Long[] sIds = Convert.toLongArray(slaveIds);
-        if (devId == null || sIds.length == 0) {
+//        Long[] pIds = Convert.toLongArray(pointIds);
+//        Long[] sIds = Convert.toLongArray(slaveIds);
+        String[] Ids = pointIds.split(",");
+        Map<Long, List<Long>> mapIds = new HashMap<>();
+        for (String id : Ids) {
+            Long sId = Long.valueOf(id.split("_")[0]);
+            Long pId = Long.valueOf(id.split("_")[1]);
+            if (mapIds.containsKey(sId)) {
+                mapIds.get(sId).add(pId);
+            } else {
+                mapIds.put(sId, new ArrayList<Long>() {{
+                    add(pId);
+                }});
+            }
+        }
+        if (devId == null || mapIds.size() == 0) {
             map.put("msg", "设备ID或从机ID不能为空");
             return map;
         }
@@ -76,6 +88,7 @@ public class SysDataController extends BaseController {
             map.put("msg", "设备ID或从机ID不能为空");
             return map;
         }
+        List<SysCollectionPoint> points = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date startDate = startTime.equals("") ? null : dateFormat.parse(startTime);
         Date endDate = endTime.equals("") ? null : dateFormat.parse(endTime);
@@ -89,15 +102,24 @@ public class SysDataController extends BaseController {
         if (endDate == null) {
             endDate = dateFormat.parse(dateFormat.format(new Date()));
         }
-        Query query = new Query();
-        Criteria criteria = new Criteria();
-        if (pIds.length > 0)
-            criteria.and("pointId").in(pIds);
-        criteria.and("devId").is(devId).and("slaveId").in(sIds);
-        criteria.and("updateTime").gte(startDate).lte(endDate);
-        query.addCriteria(criteria);
         long star = System.currentTimeMillis();
-        List<SysCollectionPoint> points = mongoTemplate.find(query, SysCollectionPoint.class);
+        for (Map.Entry<Long, List<Long>> entry : mapIds.entrySet()) {
+//            Long[] pIds = (Long[]) (entry.getValue().toArray());
+            Long[] pIds = new Long[entry.getValue().size()];
+            entry.getValue().toArray(pIds);
+            Long sId = entry.getKey();
+            Query query = new Query();
+            Criteria criteria = new Criteria();
+            if (pIds.length > 0)
+                criteria.and("pointId").in(pIds);
+//            criteria.and("devId").is(devId).and("slaveId").in(sIds);
+            criteria.and("devId").is(devId).and("slaveId").is(sId);
+            criteria.and("updateTime").gte(startDate).lte(endDate);
+            query.addCriteria(criteria);
+//            List<SysCollectionPoint> ps = mongoTemplate.find(query, SysCollectionPoint.class);
+            points.addAll(mongoTemplate.find(query, SysCollectionPoint.class));
+        }
+
         long end = System.currentTimeMillis();
         System.out.println("查询耗时：" + (end - star) + "ms");
         Map<String, List<SysCollectionPoint>> results = new HashMap<>();
@@ -153,9 +175,22 @@ public class SysDataController extends BaseController {
                              Long devId, String slaveIds, String pointIds, String startTime, String endTime) throws ParseException {
 
         Map<String, Object> map = new HashMap<>();
-        Long[] pIds = Convert.toLongArray(pointIds);
-        Long[] sIds = Convert.toLongArray(slaveIds);
-        if (devId == null || sIds.length == 0) {
+//        Long[] pIds = Convert.toLongArray(pointIds);
+//        Long[] sIds = Convert.toLongArray(slaveIds);
+        String[] Ids = pointIds.split(",");
+        Map<Long, List<Long>> mapIds = new HashMap<>();
+        for (String id : Ids) {
+            Long sId = Long.valueOf(id.split("_")[0]);
+            Long pId = Long.valueOf(id.split("_")[1]);
+            if (mapIds.containsKey(sId)) {
+                mapIds.get(sId).add(pId);
+            } else {
+                mapIds.put(sId, new ArrayList<Long>() {{
+                    add(pId);
+                }});
+            }
+        }
+        if (devId == null || mapIds.size() == 0) {
             map.put("msg", "设备ID或从机ID不能为空");
             return AjaxResult.error("导出Excel失败，设备ID或从机ID不能为空！");
         }
@@ -163,6 +198,7 @@ public class SysDataController extends BaseController {
             map.put("msg", "设备ID或从机ID不能为空");
             return AjaxResult.error("导出Excel失败，设备ID或从机ID不能为空！");
         }
+        List<SysCollectionPoint> points = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date startDate = startTime.equals("") ? null : dateFormat.parse(startTime);
         Date endDate = endTime.equals("") ? null : dateFormat.parse(endTime);
@@ -176,14 +212,20 @@ public class SysDataController extends BaseController {
         if (endDate == null) {
             endDate = dateFormat.parse(dateFormat.format(new Date()));
         }
-        Query query = new Query();
-        Criteria criteria = new Criteria();
-        if (pIds.length > 0)
-            criteria.and("pointId").in(pIds);
-        criteria.and("devId").is(devId).and("slaveId").in(sIds);
-        criteria.and("updateTime").gte(startDate).lte(endDate);
-        query.addCriteria(criteria);
-        List<SysCollectionPoint> points = mongoTemplate.find(query, SysCollectionPoint.class);
+        for (Map.Entry<Long, List<Long>> entry : mapIds.entrySet()) {
+            Query query = new Query();
+            Criteria criteria = new Criteria();
+            Long[] pIds = new Long[entry.getValue().size()];
+            entry.getValue().toArray(pIds);
+            Long sId = entry.getKey();
+            if (pIds.length > 0)
+                criteria.and("pointId").in(pIds);
+            //            criteria.and("devId").is(devId).and("slaveId").in(sIds);
+            criteria.and("devId").is(devId).and("slaveId").is(sId);
+            criteria.and("updateTime").gte(startDate).lte(endDate);
+            query.addCriteria(criteria);
+            points.addAll(mongoTemplate.find(query, SysCollectionPoint.class));
+        }
         return dataService.export(request, response, points);
     }
 }

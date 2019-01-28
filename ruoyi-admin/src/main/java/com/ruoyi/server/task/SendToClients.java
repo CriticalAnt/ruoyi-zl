@@ -7,10 +7,15 @@ import com.ruoyi.server.utils.UtilsCRC;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: wtao
@@ -19,6 +24,8 @@ import java.util.*;
  */
 @Component
 public class SendToClients {
+
+    private static final Logger log = LoggerFactory.getLogger(SendToClients.class);
 
     @Autowired
     QuartzManager quartzManager;
@@ -31,7 +38,7 @@ public class SendToClients {
             }
             for (Map.Entry<String, ResolveRecord> mapEntry : points.entrySet()) {
                 String key = mapEntry.getKey();
-                System.out.println(key);
+                log.info(key);
                 int equNum = Integer.valueOf(key.split("-")[0]);
                 int code = Integer.valueOf(key.split("-")[1]);
                 List<SysCollectionPoint> list = mapEntry.getValue().getPoints();
@@ -59,10 +66,12 @@ public class SendToClients {
                     ByteBuf buf = ctx.alloc().buffer(b.length);
                     buf.writeBytes(bytes);
                     ctx.writeAndFlush(buf);
-                    System.out.print("send: ");
+                    log.info("send: ");
+                    StringBuilder sb = new StringBuilder();
                     for (byte a : bytes) {
-                        System.out.print(String.valueOf(a & 0xFF) + " ");
+                        sb.append(String.valueOf(a & 0xFF) + " ");
                     }
+                    log.info(sb.toString());
                     System.out.println();
                     adr += qryLen;
                     len -= 125;

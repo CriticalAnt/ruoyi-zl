@@ -1,6 +1,5 @@
 package com.ruoyi.web.controller.system;
 
-import com.ruoyi.common.support.Convert;
 import com.ruoyi.server.common.ConstantState;
 import com.ruoyi.server.domain.ResolveRecord;
 import com.ruoyi.system.domain.SysCollectionPoint;
@@ -18,7 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: wtao
@@ -58,11 +60,24 @@ public class SysRealTimeController {
     @ResponseBody
     public Object list(Long devId, String slaveIds, String pointIds) {
         Map<String, Object> map = new HashMap<>();
-        Integer[] pIds = Convert.toIntArray(pointIds);
-        Integer[] sIds = Convert.toIntArray(slaveIds);
-        List<Integer> pIdList = Arrays.asList(pIds);
-        List<Integer> sIdList = Arrays.asList(sIds);
-        if (devId == null || sIds.length == 0) {
+//        Integer[] pIds = Convert.toIntArray(pointIds);
+//        Integer[] sIds = Convert.toIntArray(slaveIds);
+//        List<Integer> pIdList = Arrays.asList(pIds);
+//        List<Integer> sIdList = Arrays.asList(sIds);
+        String[] Ids = pointIds.split(",");
+        Map<Integer, List<Integer>> mapIds = new HashMap<>();
+        for (String id : Ids) {
+            Integer sId = Integer.valueOf(id.split("_")[0]);
+            Integer pId = Integer.valueOf(id.split("_")[1]);
+            if (mapIds.containsKey(sId)) {
+                mapIds.get(sId).add(pId);
+            } else {
+                mapIds.put(sId, new ArrayList<Integer>() {{
+                    add(pId);
+                }});
+            }
+        }
+        if (devId == null || mapIds.size() == 0) {
             map.put("msg", "设备ID或从机ID不能为空");
             return map;
         }
@@ -70,10 +85,10 @@ public class SysRealTimeController {
             map.put("msg", "设备ID或从机ID不能为空");
             return map;
         }
-        if (pIds.length == 0) {
-            map.put("msg", "数据点ID不能为空");
-            return map;
-        }
+//        if (pIds.length == 0) {
+//            map.put("msg", "数据点ID不能为空");
+//            return map;
+//        }
         Map<ChannelHandlerContext, Map<String, ResolveRecord>> points = new HashMap<>();
         List<String> arrtitle = new ArrayList<>();
         Map<String, String> yDatas = new HashMap<>();
@@ -87,7 +102,10 @@ public class SysRealTimeController {
         for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : points.entrySet()) {
             for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
                 for (SysCollectionPoint point : pEntry.getValue().getPoints()) {
-                    if (sIdList.contains(point.getSlaveId()) && pIdList.contains(point.getPointId())) {
+                    List<Integer> pIds = mapIds.get(point.getSlaveId());
+                    if (pIds == null)
+                        continue;
+                    if (pIds.contains(point.getPointId())) {
                         String key = point.getSlaveId() + "-" + point.getPointId();
                         String strKey = point.getSlaveName() + ":" + point.getPointName();
                         results.put(key, point);

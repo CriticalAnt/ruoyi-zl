@@ -7,6 +7,8 @@ import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.websocket.server.WebSocketServer;
 import io.netty.channel.ChannelHandlerContext;
 import org.nfunk.jep.JEP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import java.util.concurrent.Executors;
 @Service
 public class ReceiveService {
 
+    private static final Logger log = LoggerFactory.getLogger(ReceiveService.class);
+
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -44,17 +48,17 @@ public class ReceiveService {
         int len = req[2] & 0xFF;
         byte[] datas = new byte[len];
         if (len + 5 != req.length) {
-            System.out.println(218 + ":长度错误");
+            log.error(218 + ":长度错误");
             return;
         }
         //校验
         if (funCode != 3 && funCode != 4) {
-            System.out.println(223 + ":功能码错误");
+            log.error(223 + ":功能码错误");
             return;
         }
         //CRC
         if (!UtilsCRC.isCRC(req)) {
-            System.out.println(228 + ":CRC错误");
+            log.error(228 + ":CRC错误");
             return;
         }
         try {
@@ -75,7 +79,7 @@ public class ReceiveService {
                 }
                 SysCollectionPoint point = points.get(i);
                 int adr = Integer.valueOf(point.getRegisterAdr()) % 10000 - 1;
-                System.out.println("地址: " + adr);
+                log.info("地址: " + adr);
                 int valueType = point.getValueType();
                 int length = valueType == 0 ? 1 : valueType == 1 ? 1 : 2;
                 length *= 2;
@@ -83,8 +87,8 @@ public class ReceiveService {
                 int index = (adr - startAdr) * 2;
                 if (index >= len) {
                     record.setReaderAdr(startAdr + len / 2);
-                    System.out.println("readerAdr:" + record.getReaderAdr());
-                    System.out.println("超出返回数据长度");
+                    log.info("readerAdr:" + record.getReaderAdr());
+                    log.info("超出返回数据长度");
                     break;
                 }
                 record.setReaderAdr(0);
@@ -126,7 +130,7 @@ public class ReceiveService {
                 points.set(i, point);
                 res += point.getUnit();
                 executorService.execute(() -> mongoTemplate.insert(point));
-                System.out.println("result: " + res);
+                log.info("result: " + res);
                 reader++;
             }
             synchronized (ConstantState.ctxRecord) {

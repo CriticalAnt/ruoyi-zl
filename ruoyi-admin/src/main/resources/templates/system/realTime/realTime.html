@@ -234,7 +234,8 @@
                     var id = item.pointId;
                     var name = item.pointName;
                     if (slave.id == item.slaveId && devId == item.devId) {
-                        str += "<option value='" + id + "'>" + name + "</option>";
+                        var finalId = slave.id + "_" + id;
+                        str += "<option value='" + finalId + "'>" + name + "</option>";
                     }
                 });
                 str += "</optgroup>";

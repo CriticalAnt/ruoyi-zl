@@ -8,6 +8,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ import java.util.Date;
 @ChannelHandler.Sharable
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
+    private static final Logger log = LoggerFactory.getLogger(ServerHandler.class);
+
     @Autowired
     ReceiveService receiveService;
 
@@ -38,12 +42,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         buf.readBytes(req);
         String code = new String(req);
         String ip = ctx.channel().remoteAddress().toString();
-        System.out.println(new Date() + "   data: " + bytesToHex(req) + " : ");
-        System.out.println(code);
+        log.info(new Date() + "   data: " + bytesToHex(req) + " : ");
+        log.info(code);
+        StringBuilder sb = new StringBuilder();
         for (byte b : req) {
-            System.out.print((b & 0xFF) + " ");
+            sb.append((b & 0xFF) + " ");
         }
-        System.out.println();
+        log.info(sb.toString());
         if (!UtilsRegister.isRegistered(code, ip, ctx)) {
             ctx.close();
             return;
