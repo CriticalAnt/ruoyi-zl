@@ -47,7 +47,6 @@
     var addPoint = ctx + "system/datapoint";
     var viewDic = ctx + "system/dic";
     var devs = [[${devs}]]
-    console.log(devs);
     load();
 
     function load() {
@@ -123,6 +122,11 @@
         $("#showDatapoint").attr("action", viewDic + '/list/' + id).submit();
     }
 
+    function editValue(value) {
+        var url = prefix + '/edit/' + value;
+        $.modal.open("数据值", url);
+    }
+
     function showData(id) {
         var options = {
             url: prefix + "/list/" + id,
@@ -147,6 +151,19 @@
                 {
                     field: 'value',
                     title: '当前值',
+                },
+                {
+                    field: 'edit',
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        if (value.toString().startsWith('1'))
+                            actions.push('<button class="btn btn-success btn-xs ' + showFlag + '" href="#" onclick="editValue(\'' + value + '\')"><i class="fa fa-edit"></i></button>');
+                        else
+                            actions.push('-');
+                        return actions.join('');
+                    }
                 }, {
                     field: 'updateTime',
                     title: '更新时间',
@@ -182,7 +199,6 @@
 
     //接收到消息的回调方法
     websocket.onmessage = function (event) {
-        console.log(event.data)
         fresh();
     }
 

@@ -40,7 +40,7 @@ public class ScheduledActive {
         }
     }
 
-    @Scheduled(cron = "0/10 * * * * *")
+//    @Scheduled(cron = "0/10 * * * * *")
     public void redisTest() throws Exception {
         if (done)
             return;

@@ -52,8 +52,6 @@
             queryParams: function (param) {
                 return {};
             },
-            //url: "/Editable/GetUsers",
-            //data: [{UserName : "1",Age : 20,Birthday:"2015-1-1",DeptName:"bufen",Hodd:"wu"},{UserName : "2",Age : 21,Birthday:"20135-1-1",DeptName:"b1ufen",Hodd:"w4u"}],
             columns: [{
                 checkbox: true
             }, {
@@ -94,102 +92,101 @@
                         if (v.toString() == "NaN") return '请输入正确的地址';
                     }
                 }
-            },
-                {
-                    field: "valueType",
-                    title: "数值类型",
-                    editable: {
-                        type: 'select',
-                        title: '数值类型',
-                        mode: "inline",
-                        source: [
-                            {value: 0, text: "2字节无符号整数"},
-                            {value: 1, text: "2字节有符号整数"},
-                            {value: 2, text: "4字节无符号整数(AB CD)"},
-                            {value: 3, text: "4字节无符号整数(CD AB)"},
-                            {value: 4, text: "4字节有符号整数(AB CD)"},
-                            {value: 5, text: "4字节有符号整数(CD AB)"},
-                            {value: 6, text: "4字节浮点型(AB CD)"},
-                            {value: 7, text: "4字节浮点型(CD AB)"}
-                        ]
+            }, {
+                field: "valueType",
+                title: "数值类型",
+                editable: {
+                    type: 'select',
+                    title: '数值类型',
+                    mode: "inline",
+                    source: [
+                        {value: 0, text: "2字节无符号整数"},
+                        {value: 1, text: "2字节有符号整数"},
+                        {value: 2, text: "4字节无符号整数(AB CD)"},
+                        {value: 3, text: "4字节无符号整数(CD AB)"},
+                        {value: 4, text: "4字节有符号整数(AB CD)"},
+                        {value: 5, text: "4字节有符号整数(CD AB)"},
+                        {value: 6, text: "4字节浮点型(AB CD)"},
+                        {value: 7, text: "4字节浮点型(CD AB)"}
+                    ]
+                }
+            }, {
+                field: "decimalLen",
+                title: "小数位数",
+                editable: {
+                    type: 'select',
+                    title: '小数位数',
+                    mode: "inline",
+                    source: [
+                        {value: 0, text: "0(小数位数)"},
+                        {value: 1, text: "1(小数位数)"},
+                        {value: 2, text: "2(小数位数)"},
+                        {value: 3, text: "3(小数位数)"},
+                        {value: 4, text: "4(小数位数)"}
+                    ]
+                }
+            }, {
+                field: "readType",
+                title: "读写",
+                editable: {
+                    type: 'select',
+                    title: '读写',
+                    mode: "inline",
+                    source: [
+                        {value: 0, text: "只读"},
+                        {value: 1, text: "读写"},
+                        {value: 2, text: "只写"}
+                    ]
+                }
+            }, {
+                field: "registerLen",
+                title: "寄存器长度",
+                editable: {
+                    type: 'text',
+                    title: '单位',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '寄存器长度不能为空';
+                        v = Number(v);
+                        if (v.toString() == "NaN") return '请输入正确的寄存器长度';
                     }
-                }, {
-                    field: "decimalLen",
-                    title: "小数位数",
-                    editable: {
-                        type: 'select',
-                        title: '小数位数',
-                        mode: "inline",
-                        source: [
-                            {value: 0, text: "0(小数位数)"},
-                            {value: 1, text: "1(小数位数)"},
-                            {value: 2, text: "2(小数位数)"},
-                            {value: 3, text: "3(小数位数)"},
-                            {value: 4, text: "4(小数位数)"}
-                        ]
+                }
+            }, {
+                field: "unit",
+                title: "单位",
+                editable: {
+                    type: 'text',
+                    title: '单位',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '单位不能为空';
                     }
-                }, {
-                    field: "readType",
-                    title: "读写",
-                    editable: {
-                        type: 'select',
-                        title: '读写',
-                        mode: "inline",
-                        source: [
-                            {value: 0, text: "只读"},
-                            {value: 1, text: "读写"},
-                            {value: 2, text: "只写"}
-                        ]
+                }
+            }, {
+                field: "formula",
+                title: "公式",
+                editable: {
+                    type: 'text',
+                    title: '公式',
+                    mode: "inline",
+                    validate: function (v) {
+                        if (!v) return '公式不能为空';
                     }
-                }, {
-                    field: "registerLen",
-                    title: "寄存器长度",
-                    editable: {
-                        type: 'text',
-                        title: '单位',
-                        mode: "inline",
-                        validate: function (v) {
-                            if (!v) return '寄存器长度不能为空';
-                            v = Number(v);
-                            if (v.toString() == "NaN") return '请输入正确的寄存器长度';
-                        }
-                    }
-                }, {
-                    field: "unit",
-                    title: "单位",
-                    editable: {
-                        type: 'text',
-                        title: '单位',
-                        mode: "inline",
-                        validate: function (v) {
-                            if (!v) return '单位不能为空';
-                        }
-                    }
-                }, {
-                    field: "formula",
-                    title: "公式",
-                    editable: {
-                        type: 'text',
-                        title: '公式',
-                        mode: "inline",
-                        validate: function (v) {
-                            if (!v) return '公式不能为空';
-                        }
-                    }
-                }, {
-                    field: "storageType",
-                    title: "数据存储",
-                    editable: {
-                        type: 'select',
-                        title: '数据存储',
-                        mode: "inline",
-                        source: [
-                            {value: 0, text: "不存储"},
-                            {value: 1, text: "存储"},
-                            {value: 2, text: "变化时存储"}
-                        ]
-                    }
-                }]
+                }
+            }, {
+                field: "storageType",
+                title: "数据存储",
+                editable: {
+                    type: 'select',
+                    title: '数据存储',
+                    mode: "inline",
+                    source: [
+                        {value: 0, text: "不存储"},
+                        {value: 1, text: "存储"},
+                        {value: 2, text: "变化时存储"}
+                    ]
+                }
+            }]
         };
         $add.click(function () {
             $table.bootstrapTable('insertRow', {
@@ -235,12 +232,18 @@
             for (var i = 0; i < rows.length; i++) {
                 var registerAdr = rows[i].registerAdr;
                 var registerLen = rows[i].registerLen;
+                var readType = rows[i].readType;
                 if (Number(registerAdr).toString() == "NaN") {
                     alert('第' + (i + 1) + '条寄存器地址错误');
                     return;
                 }
                 if (Number(registerLen).toString() == "NaN") {
                     alert('第' + (i + 1) + '条寄存器长度错误');
+                    return;
+                }
+                if (registerAdr.toString().startsWith('3') &&
+                    (readType == 1 || readType == 2)) {
+                    alert('第' + (i + 1) + '条读写类型与寄存器地址不匹配');
                     return;
                 }
                 var unit = encodeURIComponent(rows[i].unit);

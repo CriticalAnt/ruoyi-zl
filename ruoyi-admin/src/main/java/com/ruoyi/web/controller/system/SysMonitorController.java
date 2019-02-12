@@ -1,14 +1,17 @@
 package com.ruoyi.web.controller.system;
 
 import com.google.common.collect.Sets;
+import com.ruoyi.common.base.AjaxResult;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.server.common.ConstantState;
 import com.ruoyi.server.domain.ResolveRecord;
+import com.ruoyi.server.utils.UtilsCRC;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import com.ruoyi.system.domain.SysDevice;
 import com.ruoyi.system.mapper.SysCollectionPointMapper;
 import com.ruoyi.system.service.ISysDeviceService;
 import com.ruoyi.web.core.base.BaseController;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -82,6 +85,64 @@ public class SysMonitorController extends BaseController {
         modelMap.put("devs", devs);
         modelMap.put("points", list);
         return prefix + "/monitor";
+    }
+
+    @GetMapping("edit/{info}")
+    public String edit(@PathVariable("info") String info, ModelMap mmap) {
+        String[] ids = info.split(",");
+        Long devId = Long.valueOf(ids[1]);
+        int equNum = Integer.valueOf(ids[2]);
+        int pointId = Integer.valueOf(ids[3]);
+        int valueType = Integer.valueOf(ids[4]);
+        int address = Integer.valueOf(ids[5]);
+        SysDevice device = deviceService.selectById(devId);
+        mmap.put("device", device);
+        mmap.put("equNum", equNum);
+        mmap.put("pointId", pointId);
+        mmap.put("valueType", valueType);
+        mmap.put("address", address);
+        return prefix + "/edit";
+    }
+
+    @PostMapping("edit")
+    @ResponseBody
+    public AjaxResult edit(String code, int equNum, int pointId, int address, int valueType, String value) {
+        ChannelHandlerContext ctx;
+        synchronized (ConstantState.registeredCtx) {
+            ctx = ConstantState.registeredCtx.get(code);
+        }
+        if (ctx == null) {
+            return AjaxResult.error("当前设备不在线，发送失败");
+        }
+        int adr = address % 10000 - 1;
+        int val = Integer.valueOf(value);
+        byte[] bytes = new byte[6];
+        byte[] b = new byte[8];
+        bytes[0] = (byte) equNum;
+        bytes[1] = (byte) 0x06;
+        bytes[2] = (byte) ((adr >> 8) & 0xFF);
+        bytes[3] = (byte) (adr & 0xFF);
+        if (valueType == 0) {
+            bytes[4] = (byte) ((val >> 8) & 0xFF);
+            bytes[5] = (byte) (val & 0xFF);
+        } else if (valueType == 1) {
+            bytes[4] = (byte) (val >> 8);
+            bytes[5] = (byte) (val & 0xFF);
+        } else {
+            return AjaxResult.error("不支持当前数值类型");
+        }
+        int crc = UtilsCRC.getCRC(bytes);
+        b[6] = (byte) (crc & 0xFF);
+        b[7] = (byte) ((crc >> 8) & 0xFF);
+        System.arraycopy(bytes, 0, b, 0, 6);
+        ByteBuf buf = ctx.alloc().buffer(b.length);
+        buf.writeBytes(b);
+        try {
+            ctx.writeAndFlush(buf);
+        } catch (Exception e) {
+            return AjaxResult.error(e.getMessage());
+        }
+        return AjaxResult.success("发送成功");
     }
 
     @PostMapping("list")
@@ -159,6 +220,14 @@ public class SysMonitorController extends BaseController {
             Map<String, String> map = new HashMap<>();
             map.put("pointName", point.getPointName());
             map.put("slaveName", point.getSlaveName());
+            if (point.getRegisterAdr().startsWith("4") &&
+                    (point.getReadType() == 1 || point.getReadType() == 2)) {
+                map.put("edit", "1," + point.getDevId() + "," + point.getEquNum()
+                        + "," + point.getPointId() + "," + point.getValueType()
+                        + "," + point.getRegisterAdr());
+            } else {
+                map.put("edit", "0");
+            }
             if (point.getValue() == null) {
                 map.put("value", "-");
             } else {

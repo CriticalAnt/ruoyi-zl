@@ -15,7 +15,6 @@ public class UtilsCRC {
     public static int getCRC(byte[] bytes) {
         int CRC = 0x0000ffff;
         int POLYNOMIAL = 0x0000a001;
-
         int i, j;
         for (i = 0; i < bytes.length; i++) {
             CRC ^= ((int) bytes[i] & 0x000000ff);

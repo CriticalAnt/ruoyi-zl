@@ -117,6 +117,11 @@
         var unit = $("input[name='unit']").val();
         var formula = $("input[name='formula']").val();
         var storageType = $("#storageType").val();
+        if (registerAdr.toString().startsWith('3') &&
+            (readType == 1 || readType == 2)) {
+            alert('读写类型与寄存器地址不匹配');
+            return;
+        }
         $.ajax({
             cache: true,
             type: "POST",
