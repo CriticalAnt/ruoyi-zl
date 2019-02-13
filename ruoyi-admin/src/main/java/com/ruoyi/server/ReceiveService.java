@@ -85,13 +85,15 @@ public class ReceiveService {
                 length *= 2;
                 byte[] data = new byte[length];
                 int index = (adr - startAdr) * 2;
+                log.info("startAdr: " + startAdr);
+                log.info("index: " + index);
                 if (index >= len) {
                     record.setReaderAdr(startAdr + len / 2);
                     log.info("readerAdr:" + record.getReaderAdr());
                     log.info("超出返回数据长度");
                     break;
                 }
-                record.setReaderAdr(0);
+                record.resetReaderAdr();
                 System.arraycopy(datas, index, data, 0, length);
                 long v;
                 float f;

@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: wtao
@@ -34,6 +31,12 @@ public class InitialPoint implements CommandLineRunner {
         ConstantState.registeredCode.clear();
         List<SysDevice> devices = deviceService.findAll();
         List<SysCollectionPoint> points = pointMapper.findAll();
+        Collections.sort(points, (o1, o2) -> {
+            int x = Integer.valueOf(o1.getRegisterAdr())
+                    - Integer.valueOf(o2.getRegisterAdr());
+            return x;
+
+        });
         for (SysDevice device : devices) {
             Map<String, ResolveRecord> map = new HashMap<>();
             for (SysCollectionPoint point : points) {
@@ -43,9 +46,7 @@ public class InitialPoint implements CommandLineRunner {
                     code = code == 3 ? 4 : 3;
                     String key = equNum + "-" + code;
                     if (!map.containsKey(key)) {
-                        ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
-                            add(point);
-                        }});
+                        ResolveRecord record = new ResolveRecord(point);
                         map.put(key, record);
                     } else
                         map.get(key).getPoints().add(point);

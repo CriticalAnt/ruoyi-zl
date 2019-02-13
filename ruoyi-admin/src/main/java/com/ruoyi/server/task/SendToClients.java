@@ -66,7 +66,7 @@ public class SendToClients {
                     ByteBuf buf = ctx.alloc().buffer(b.length);
                     buf.writeBytes(bytes);
                     ctx.writeAndFlush(buf);
-                    log.info("send: ");
+                    log.info("send: " + ctx.channel().remoteAddress().toString());
                     StringBuilder sb = new StringBuilder();
                     for (byte a : bytes) {
                         sb.append(String.valueOf(a & 0xFF) + " ");

@@ -18,6 +18,8 @@ import com.ruoyi.system.domain.SysUser;
 import com.ruoyi.system.mapper.SysCollectionPointMapper;
 import com.ruoyi.system.service.ISysDeviceService;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
@@ -32,6 +34,8 @@ import java.util.*;
  * @author ruoyi
  */
 public class BaseController {
+
+    private static final Logger log = LoggerFactory.getLogger(BaseController.class);
 
     @Autowired
     ISysDeviceService deviceService;
@@ -48,6 +52,12 @@ public class BaseController {
     public void updatePointsByTempId(Set<Integer> set) {
         List<SysDevice> devices = deviceService.findAll();
         List<SysCollectionPoint> points = pointMapper.findAll();
+        Collections.sort(points, (o1, o2) -> {
+            int x = Integer.valueOf(o1.getRegisterAdr())
+                    - Integer.valueOf(o2.getRegisterAdr());
+            return x;
+
+        });
         for (SysDevice device : devices) {
             String rgsCode = device.getCode();
             Map<String, ResolveRecord> map = new HashMap<>();
@@ -58,9 +68,7 @@ public class BaseController {
                     code = code == 3 ? 4 : 3;
                     String key = equNum + "-" + code;
                     if (!map.containsKey(key)) {
-                        ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
-                            add(point);
-                        }});
+                        ResolveRecord record = new ResolveRecord(point);
                         map.put(key, record);
                     } else
                         map.get(key).getPoints().add(point);
@@ -83,6 +91,12 @@ public class BaseController {
     public void updatePointsByDevId(Set<Integer> set) {
         List<SysDevice> devices = deviceService.findAll();
         List<SysCollectionPoint> points = pointMapper.findAll();
+        Collections.sort(points, (o1, o2) -> {
+            int x = Integer.valueOf(o1.getRegisterAdr())
+                    - Integer.valueOf(o2.getRegisterAdr());
+            return x;
+
+        });
         for (SysDevice device : devices) {
             String rgsCode = device.getCode();
             Map<String, ResolveRecord> map = new HashMap<>();
@@ -93,9 +107,7 @@ public class BaseController {
                     code = code == 3 ? 4 : 3;
                     String key = equNum + "-" + code;
                     if (!map.containsKey(key)) {
-                        ResolveRecord record = new ResolveRecord(new ArrayList<SysCollectionPoint>() {{
-                            add(point);
-                        }});
+                        ResolveRecord record = new ResolveRecord(point);
                         map.put(key, record);
                     } else
                         map.get(key).getPoints().add(point);
@@ -120,7 +132,8 @@ public class BaseController {
         for (SysDevice device : devices) {
             String code = device.getCode();
             ConstantState.ctxRecord.remove(ConstantState.registeredCtx.get(code));
-            ConstantState.registeredCtx.get(code).close();
+            if (ConstantState.registeredCtx.get(code) != null)
+                ConstantState.registeredCtx.get(code).close();
             ConstantState.registeredCode.remove(code);
             ConstantState.registeredCtx.remove(code);
             ConstantState.codeRecord.remove(code);

@@ -13,6 +13,8 @@ import com.ruoyi.system.service.ISysDeviceService;
 import com.ruoyi.web.core.base.BaseController;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -31,6 +33,8 @@ import java.util.*;
 public class SysMonitorController extends BaseController {
 
     private String prefix = "system/monitor";
+
+    private static final Logger log = LoggerFactory.getLogger(SysMonitorController.class);
 
     @Autowired
     ISysDeviceService deviceService;
@@ -123,9 +127,13 @@ public class SysMonitorController extends BaseController {
         bytes[2] = (byte) ((adr >> 8) & 0xFF);
         bytes[3] = (byte) (adr & 0xFF);
         if (valueType == 0) {
+            if (val > 65535 || val < 0)
+                return AjaxResult.error("请取0-65535之间的数值");
             bytes[4] = (byte) ((val >> 8) & 0xFF);
             bytes[5] = (byte) (val & 0xFF);
         } else if (valueType == 1) {
+            if (val > 32767 || val < -32768)
+                return AjaxResult.error("请取-32768-32767之间的数值");
             bytes[4] = (byte) (val >> 8);
             bytes[5] = (byte) (val & 0xFF);
         } else {
@@ -184,6 +192,7 @@ public class SysMonitorController extends BaseController {
         for (SysCollectionPoint p : points) {
             resSet.add(p);
         }
+        log.info("列表展示Count: " + resSet.size());
         for (Map.Entry<ChannelHandlerContext, Map<String, ResolveRecord>> entry : ps.entrySet()) {
             for (Map.Entry<String, ResolveRecord> pEntry : entry.getValue().entrySet()) {
                 for (SysCollectionPoint point : pEntry.getValue().getPoints()) {

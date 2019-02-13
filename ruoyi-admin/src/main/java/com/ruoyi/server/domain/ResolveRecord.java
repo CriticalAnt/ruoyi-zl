@@ -2,6 +2,7 @@ package com.ruoyi.server.domain;
 
 import com.ruoyi.system.domain.SysCollectionPoint;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,10 +18,14 @@ public class ResolveRecord {
 
     private int readerAdr;
 
-    private List<SysCollectionPoint> points;
+    private int startAdr;
 
-    public ResolveRecord(List<SysCollectionPoint> points) {
-        this.points = points;
+    private List<SysCollectionPoint> points = new ArrayList<>();
+
+    public ResolveRecord(SysCollectionPoint point) {
+        this.points.add(point);
+        startAdr = Integer.valueOf(point.getRegisterAdr()) % 10000 - 1;
+        readerAdr = startAdr;
     }
 
     public int getReader() {
@@ -55,5 +60,9 @@ public class ResolveRecord {
 
     public void setReaderAdr(int readerAdr) {
         this.readerAdr = readerAdr;
+    }
+
+    public void resetReaderAdr() {
+        readerAdr = startAdr;
     }
 }
