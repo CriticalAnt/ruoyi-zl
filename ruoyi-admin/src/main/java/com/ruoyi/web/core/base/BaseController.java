@@ -144,6 +144,7 @@ public class BaseController {
     public void updateDevice(SysDevice device) throws Exception {
         String rgsCode = device.getCode();
         ChannelHandlerContext ctx = ConstantState.registeredCtx.get(rgsCode);
+        ConstantState.codeName.put(device.getCode(), device.getDevName());
         if (ctx != null) {
             quartzManager.updateJob(ctx.channel().remoteAddress().toString(), rgsCode, device.getFrequency());
         }

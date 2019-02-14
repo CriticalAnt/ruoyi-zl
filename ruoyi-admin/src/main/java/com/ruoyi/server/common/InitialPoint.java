@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: wtao
@@ -53,6 +56,7 @@ public class InitialPoint implements CommandLineRunner {
                 }
             }
             ConstantState.codeRecord.put(device.getCode(), map);
+            ConstantState.codeName.put(device.getCode(), device.getDevName());
             ConstantState.codeCron.put(device.getCode(), device.getFrequency());
             ConstantState.registeredCode.put(device.getCode(), "0");
         }

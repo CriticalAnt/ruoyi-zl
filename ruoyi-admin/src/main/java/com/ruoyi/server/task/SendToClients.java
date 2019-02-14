@@ -38,7 +38,7 @@ public class SendToClients {
             }
             for (Map.Entry<String, ResolveRecord> mapEntry : points.entrySet()) {
                 String key = mapEntry.getKey();
-                log.info(key);
+                log.warn(key);
                 int equNum = Integer.valueOf(key.split("-")[0]);
                 int code = Integer.valueOf(key.split("-")[1]);
                 List<SysCollectionPoint> list = mapEntry.getValue().getPoints();
@@ -66,12 +66,12 @@ public class SendToClients {
                     ByteBuf buf = ctx.alloc().buffer(b.length);
                     buf.writeBytes(bytes);
                     ctx.writeAndFlush(buf);
-                    log.info("send: " + ctx.channel().remoteAddress().toString());
+                    log.warn("send to: " + ConstantState.ctxName.get(ctx));
                     StringBuilder sb = new StringBuilder();
                     for (byte a : bytes) {
                         sb.append(String.valueOf(a & 0xFF) + " ");
                     }
-                    log.info(sb.toString());
+                    log.warn(sb.toString());
                     System.out.println();
                     adr += qryLen;
                     len -= 125;

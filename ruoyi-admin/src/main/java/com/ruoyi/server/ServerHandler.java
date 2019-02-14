@@ -42,13 +42,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         buf.readBytes(req);
         String code = new String(req);
         String ip = ctx.channel().remoteAddress().toString();
-        log.info(new Date() + "   data: " + bytesToHex(req) + " : ");
-        log.info(code);
+        log.warn("receive from " + ConstantState.ctxName.get(ctx) + ": " + bytesToHex(req) + " : ");
+        log.warn(code);
         StringBuilder sb = new StringBuilder();
         for (byte b : req) {
             sb.append((b & 0xFF) + " ");
         }
-        log.info(sb.toString());
+        log.warn(sb.toString());
         if (!UtilsRegister.isRegistered(code, ip, ctx)) {
             ctx.close();
             return;

@@ -23,6 +23,8 @@ public final class ConstantState {
     public static Map<ChannelHandlerContext, Map<String, ResolveRecord>> ctxRecord = new HashMap<>();
     public static Map<ChannelHandlerContext, Integer> ctxIndex = new HashMap<>();
     public static Map<ChannelHandlerContext, Date> ctxHeartTime = new HashMap<>();
+    public static Map<ChannelHandlerContext, String> ctxName = new HashMap<>();
+    public static Map<String, String> codeName = new HashMap<>();
     public static Map<ChannelHandlerContext, Map<Integer, Map<String, List<String>>>> ctxDataFormat = new HashMap<>();
     public static Map<SysCollectionPoint, String> recordValues = new HashMap<>();
 }

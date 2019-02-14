@@ -79,14 +79,14 @@ public class ReceiveService {
                 }
                 SysCollectionPoint point = points.get(i);
                 int adr = Integer.valueOf(point.getRegisterAdr()) % 10000 - 1;
-                log.info("地址: " + adr);
+                log.warn("地址: " + adr);
                 int valueType = point.getValueType();
                 int length = valueType == 0 ? 1 : valueType == 1 ? 1 : 2;
                 length *= 2;
                 byte[] data = new byte[length];
                 int index = (adr - startAdr) * 2;
-                log.info("startAdr: " + startAdr);
-                log.info("index: " + index);
+//                log.warn("startAdr: " + startAdr);
+//                log.warn("index: " + index);
                 if (index >= len) {
                     record.setReaderAdr(startAdr + len / 2);
                     log.info("readerAdr:" + record.getReaderAdr());
@@ -132,7 +132,7 @@ public class ReceiveService {
                 points.set(i, point);
                 res += point.getUnit();
                 executorService.execute(() -> mongoTemplate.insert(point));
-                log.info("result: " + res);
+                log.warn("result: " + res);
                 reader++;
             }
             synchronized (ConstantState.ctxRecord) {
