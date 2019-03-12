@@ -38,8 +38,12 @@ public class ReceiveService {
 
     public void receive2(byte[] req, ChannelHandlerContext ctx) {
         Map<String, ResolveRecord> records;
+        int count = 0;
         synchronized (ConstantState.ctxRecord) {
             records = ConstantState.ctxRecord.get(ctx);
+        }
+        synchronized (ConstantState.ctxCount) {
+            count = ConstantState.ctxCount.get(ctx.channel().remoteAddress());
         }
 
         //数据解析
@@ -49,16 +53,19 @@ public class ReceiveService {
         byte[] datas = new byte[len];
         if (len + 5 != req.length) {
             log.error(218 + ":长度错误");
+            ConstantState.ctxCount.put(ctx.channel().remoteAddress(), Integer.valueOf(count + 1));
             return;
         }
         //校验
         if (funCode != 3 && funCode != 4) {
             log.error(223 + ":功能码错误");
+            ConstantState.ctxCount.put(ctx.channel().remoteAddress(), Integer.valueOf(count + 1));
             return;
         }
         //CRC
         if (!UtilsCRC.isCRC(req)) {
             log.error(228 + ":CRC错误");
+            ConstantState.ctxCount.put(ctx.channel().remoteAddress(), Integer.valueOf(count + 1));
             return;
         }
         try {

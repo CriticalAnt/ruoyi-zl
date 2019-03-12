@@ -90,6 +90,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         ConstantState.ctxIndex.remove(ctx);
         ConstantState.ctxHeartTime.remove(ctx);
         ConstantState.ctxRecord.remove(ctx);
+        ConstantState.ctxCount.remove(ctx.channel().remoteAddress());
         ConstantState.registeredCtx.remove(code);
         if (ConstantState.registeredCode.containsKey(code))
             ConstantState.registeredCode.put(code, "0");

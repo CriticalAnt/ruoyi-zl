@@ -1,5 +1,6 @@
 package com.ruoyi.server.decoder;
 
+import com.ruoyi.server.common.ConstantState;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -37,7 +38,17 @@ public class CustomDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf bufferIn, List<Object> out) throws Exception {
-
+        int count = 0;
+        synchronized (ConstantState.ctxCount) {
+            if (ConstantState.ctxCount.containsKey(channelHandlerContext.channel().remoteAddress())) {
+                count = ConstantState.ctxCount.get(channelHandlerContext.channel().remoteAddress());
+            }
+        }
+        //如果错误次数到达3次，所有数据都忽略，重新开始解析
+        if (count >= 3) {
+            bufferIn.skipBytes(bufferIn.readableBytes());
+            ConstantState.ctxCount.put(channelHandlerContext.channel().remoteAddress(), 0);
+        }
         //记录读指针位置
         int beginReader = bufferIn.readerIndex();
         //注册码、心跳包处理

@@ -32,6 +32,7 @@ public class UtilsRegister {
             ConstantState.ctxRecord.put(ctx, ConstantState.codeRecord.get(code));
             ConstantState.ctxName.put(ctx, ConstantState.codeName.get(code));
             ConstantState.ctxIndex.put(ctx, 0);
+            ConstantState.ctxCount.put(ctx.channel().remoteAddress(), 0);
             String cron = ConstantState.codeCron.get(code);
             String adr = ctx.channel().remoteAddress().toString();
             Map<String, Object> map = new HashMap<>();

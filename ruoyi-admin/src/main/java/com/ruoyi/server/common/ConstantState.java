@@ -4,6 +4,7 @@ import com.ruoyi.server.domain.ResolveRecord;
 import com.ruoyi.system.domain.SysCollectionPoint;
 import io.netty.channel.ChannelHandlerContext;
 
+import java.net.SocketAddress;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ public final class ConstantState {
     public static Map<ChannelHandlerContext, Integer> ctxIndex = new HashMap<>();
     public static Map<ChannelHandlerContext, Date> ctxHeartTime = new HashMap<>();
     public static Map<ChannelHandlerContext, String> ctxName = new HashMap<>();
+    public static Map<SocketAddress, Integer> ctxCount = new HashMap<>();
     public static Map<String, String> codeName = new HashMap<>();
     public static Map<ChannelHandlerContext, Map<Integer, Map<String, List<String>>>> ctxDataFormat = new HashMap<>();
     public static Map<SysCollectionPoint, String> recordValues = new HashMap<>();
